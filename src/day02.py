@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from typing import Tuple, List
+from typing import Tuple, List, Callable
 
 
 def format_instructions(path: str) -> List[Tuple[str, int]]:
@@ -8,7 +8,7 @@ def format_instructions(path: str) -> List[Tuple[str, int]]:
         return [(str(x), int(y)) for [x, y] in lines]
 
 
-def update_coord(coord: Tuple[int, int], instruction: Tuple[str, int]) -> Tuple[int, int]:
+def update_coord_v1(coord: Tuple[int, int], instruction: Tuple[str, int]) -> Tuple[int, int]:
     [direction, value] = instruction
     horizontal_position = coord[0]
     depth = coord[1]
@@ -23,10 +23,15 @@ def update_coord(coord: Tuple[int, int], instruction: Tuple[str, int]) -> Tuple[
     return horizontal_position, depth
 
 
-def calculate_final_coordinates(instructions: List[Tuple[str, int]], initial_coord: Tuple[int, int]) -> Tuple[int, int]:
+def calculate_final_coordinates(instructions: List[Tuple[str, int]],
+                                initial_coord: Tuple[int, int],
+                                update_coordinates_function: Callable[[Tuple[int, int],
+                                                                       Tuple[str, int]],
+                                                                      Tuple[int, int]]
+                                ) -> Tuple[int, int]:
     current_coord = initial_coord
     for instruction in instructions:
-        current_coord = update_coord(current_coord, instruction)
+        current_coord = update_coordinates_function(current_coord, instruction)
     return current_coord
 
 
@@ -39,9 +44,9 @@ if __name__ == "__main__":
     instructions = format_instructions(file_path)
     # Manual check
     instructions_subset = instructions[0:5]
-    print("## for instructions:", instructions_subset, ", the final coordinates are:", calculate_final_coordinates(instructions_subset, (0, 0)))
-    final_coordinates = calculate_final_coordinates(instructions, (0, 0))
-    coordinates_multiplier = multiply_coordinates(final_coordinates)
+    print("## for instructions:", instructions_subset, ", the final coordinates are:", calculate_final_coordinates(instructions_subset, (0, 0), update_coord_v1))
     # Final solution
+    final_coordinates = calculate_final_coordinates(instructions, (0, 0), update_coord_v1)
+    coordinates_multiplier = multiply_coordinates(final_coordinates)
     print("## For full list of instructions, the final coordinates are:", final_coordinates, "and the multiplier is:", coordinates_multiplier)
 
