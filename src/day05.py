@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from typing import List, Tuple, NamedTuple
+from typing import List, NamedTuple
 
 
 class Coord(NamedTuple):
@@ -17,14 +17,18 @@ Diagram = List[List[int]]
 
 
 def read_data(file_name: str) -> VentLines:
-    with open(file_name, 'r') as file:
+    with open(file_name, "r") as file:
         instructions = [instruction.strip() for instruction in file.readlines()]
 
     vent_lines = []
     for instruction in instructions:
-        coordinates = instruction.split(' -> ')
-        start_coord = Coord(int(coordinates[0].split(",")[0]), int(coordinates[0].split(",")[1]))
-        end_coord = Coord(int(coordinates[1].split(",")[0]), int(coordinates[1].split(",")[1]))
+        coordinates = instruction.split(" -> ")
+        start_coord = Coord(
+            x=int(coordinates[0].split(",")[0]), y=int(coordinates[0].split(",")[1])
+        )
+        end_coord = Coord(
+            x=int(coordinates[1].split(",")[0]), y=int(coordinates[1].split(",")[1])
+        )
         vent_line = VentLine(start=start_coord, end=end_coord)
         vent_lines.append(vent_line)
 
@@ -42,9 +46,9 @@ def exclude_diagonal_vent_lines(vent_lines: VentLines) -> VentLines:
 
 def define_range(start: int, end: int) -> range:
     if start < end:
-        return range(start, end+1)
+        return range(start, end + 1)
 
-    return range(end, start+1)
+    return range(end, start + 1)
 
 
 def update_diagram(diagram: Diagram, vent_line: VentLine) -> Diagram:
@@ -69,7 +73,10 @@ def update_diagram(diagram: Diagram, vent_line: VentLine) -> Diagram:
     # lapY = 2-4 = -2 (y1-y2)
     if x_lap == y_lap:
         # Diagonal is \ (N-W, S-E) => coordinate (start or end) which has min x coord also has min y_coord.
-        north_west_coord = Coord(x=min(vent_line.start.x, vent_line.end.x), y=min(vent_line.start.y, vent_line.end.y))
+        north_west_coord = Coord(
+            x=min(vent_line.start.x, vent_line.end.x),
+            y=min(vent_line.start.y, vent_line.end.y),
+        )
         for lap in range(abs(x_lap) + 1):
             diagram[north_west_coord.x + lap][north_west_coord.y + lap] += 1
 
@@ -83,7 +90,10 @@ def update_diagram(diagram: Diagram, vent_line: VentLine) -> Diagram:
     # lapY = 8-4 = +4 (y1-y2)
     if x_lap == -y_lap:
         # Diagonal is / (N-E, S-W) => coordinate (start or end) which has min x cord also has MAX y coord
-        south_west_coord = Coord(x=max(vent_line.start.x, vent_line.end.x), y=min(vent_line.start.y, vent_line.end.y))
+        south_west_coord = Coord(
+            x=max(vent_line.start.x, vent_line.end.x),
+            y=min(vent_line.start.y, vent_line.end.y),
+        )
         for lap in range(abs(x_lap) + 1):
             diagram[south_west_coord.x - lap][south_west_coord.y + lap] += 1
 
@@ -95,7 +105,7 @@ def draw_diagram(vent_lines: VentLines, diagram_size: int, diagonals: bool) -> D
         selected_vent_lines = exclude_diagonal_vent_lines(vent_lines)
     else:
         selected_vent_lines = vent_lines
-    diagram = [[0]*(diagram_size+1) for row in range(diagram_size + 1)]
+    diagram = [[0] * (diagram_size + 1) for row in range(diagram_size + 1)]
     for selected_vent_line in selected_vent_lines:
         diagram = update_diagram(diagram, selected_vent_line)
 
@@ -115,17 +125,19 @@ def count_dangers(diagram: Diagram, danger_threshold: int) -> int:
 def define_diagram_size(vent_lines: VentLines) -> int:
     diagram_size = 0
     for vent_line in vent_lines:
-        max_coord = max(vent_line.start.x, vent_line.start.y, vent_line.end.x, vent_line.end.y)
+        max_coord = max(
+            vent_line.start.x, vent_line.start.y, vent_line.end.x, vent_line.end.y
+        )
         if max_coord > diagram_size:
             diagram_size = max_coord
 
     return diagram_size
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Tests
     print("-- Tests on test data:")
-    test_vent_lines = read_data('data/day05-input-test.txt')
+    test_vent_lines = read_data("data/day05-input-test.txt")
     test_diagram_size = define_diagram_size(test_vent_lines)
     test_diagram = draw_diagram(test_vent_lines, test_diagram_size, diagonals=False)
     test_nb_dangerous_points = count_dangers(test_diagram, 2)
@@ -136,7 +148,7 @@ if __name__ == '__main__':
 
     # Solution for 5-a
     print("-- Solution for 5-a:")
-    vent_lines = read_data('data/day05-input.txt')
+    vent_lines = read_data("data/day05-input.txt")
     diagram_size = define_diagram_size(vent_lines)
     diagram = draw_diagram(vent_lines, diagram_size, diagonals=False)
     nb_dangerous_points = count_dangers(diagram, 2)
@@ -144,7 +156,7 @@ if __name__ == '__main__':
 
     # Solution for 5-b
     print("-- Solution for 5-b:")
-    vent_lines = read_data('data/day05-input.txt')
+    vent_lines = read_data("data/day05-input.txt")
     diagram_size = define_diagram_size(vent_lines)
     diagram = draw_diagram(vent_lines, diagram_size, diagonals=True)
     nb_dangerous_points = count_dangers(diagram, 2)
