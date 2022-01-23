@@ -86,13 +86,13 @@ def extract_nth_winning_board(bingo_results: List[BingoBoardResult], nth_winning
     return sorted_bingo_results[nth_winning_board]
 
 
-def play_bingo(draws: Draws, boards: List[Board]) -> BingoBoardResult:
+def play_bingo(draws: Draws, boards: List[Board]) -> List[BingoBoardResult]:
     results = []
     for board in boards:
         bingo_board_results = win_board(draws, board)
         results.append(bingo_board_results)
 
-    return extract_nth_winning_board(results, 0)
+    return results
 
 
 def calculate_board_score(last_drawn_number: int, unmarked_cards: Cards) -> int:
@@ -113,12 +113,15 @@ if __name__ == '__main__':
     print("\n-- Tests on test data:")
     (test_draws, test_boards) = read_data('data/day04-input-test.txt')
     test_bingo_results = play_bingo(test_draws, test_boards)
-    print(calculate_board_score(test_bingo_results.last_draw, test_bingo_results.unmarked_cards) == 4512)
+    test_winner_board = extract_nth_winning_board(test_bingo_results, 0)
+    test_winner_board_score = calculate_board_score(test_winner_board.last_draw, test_winner_board.unmarked_cards)
+    print(test_winner_board_score == 4512)
 
     # Solution for 4-a
     print("\n-- Solution for 4-a:")
     (draws, boards) = read_data('data/day04-input.txt')
     bingo_results = play_bingo(draws, boards)
-    winning_board_score = calculate_board_score(bingo_results.last_draw, bingo_results.unmarked_cards)
+    winning_board = extract_nth_winning_board(bingo_results, 0)
+    winning_board_score = calculate_board_score(winning_board.last_draw, winning_board.unmarked_cards)
     print("The score of the winning board is:", winning_board_score)
 
