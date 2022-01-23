@@ -88,7 +88,7 @@ def extract_nth_winning_board(bingo_results: List[BingoBoardResult], nth_winning
 
 def play_bingo(draws: Draws, boards: List[Board]) -> BingoBoardResult:
     results = []
-    for board_index, board in enumerate(boards):
+    for board in boards:
         bingo_board_results = win_board(draws, board)
         results.append(bingo_board_results)
 
