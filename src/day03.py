@@ -93,7 +93,7 @@ def read_data(file_name: str) -> List[str]:
         return [binary.strip() for binary in file.readlines()]
 
 
-if __name__== "__main__":
+if __name__ == "__main__":
     # Check with test data
     test_data = ["00100",
                  "11110",
@@ -107,7 +107,7 @@ if __name__== "__main__":
                  "11001",
                  "00010",
                  "01010"]
-    [gamma_rate, epsilon_rate, oxygen_rate, co2_rate] = generate_diagnostics(test_data)
+    (gamma_rate, epsilon_rate, oxygen_rate, co2_rate) = generate_diagnostics(test_data)
     power_consumption = multiply(gamma_rate, epsilon_rate)
     life_support_rating = multiply(oxygen_rate, co2_rate)
     print(gamma_rate == 22, epsilon_rate == 9, power_consumption == 9*22)
@@ -115,7 +115,7 @@ if __name__== "__main__":
 
     # Solution for 3-a
     data = read_data('data/day03-input.txt')
-    [gamma_rate, epsilon_rate, oxygen_rate, co2_rate] = generate_diagnostics(data)
+    (gamma_rate, epsilon_rate, oxygen_rate, co2_rate) = generate_diagnostics(data)
     power_consumption = multiply(gamma_rate, epsilon_rate)
     life_support_rating = multiply(oxygen_rate, co2_rate)
     print("Result for 3-a:", gamma_rate, epsilon_rate, "==", power_consumption)
