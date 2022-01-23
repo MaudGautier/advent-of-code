@@ -125,3 +125,10 @@ if __name__ == '__main__':
     winning_board_score = calculate_board_score(winning_board.last_draw, winning_board.unmarked_cards)
     print("The score of the winning board is:", winning_board_score)
 
+    # Solution for 4-b
+    print("\n-- Solution for 4-a:")
+    losing_board = extract_nth_winning_board(bingo_results, len(boards) - 1)
+    losing_board_score = calculate_board_score(losing_board.last_draw, losing_board.unmarked_cards)
+    print("The score of the losing board is:", losing_board_score)
+
+
