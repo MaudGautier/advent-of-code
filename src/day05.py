@@ -105,7 +105,7 @@ def draw_diagram(vent_lines: VentLines, diagram_size: int, diagonals: bool) -> D
         selected_vent_lines = exclude_diagonal_vent_lines(vent_lines)
     else:
         selected_vent_lines = vent_lines
-    diagram = [[0] * (diagram_size + 1) for row in range(diagram_size + 1)]
+    diagram = [[0] * (diagram_size + 1) for _ in range(diagram_size + 1)]
     for selected_vent_line in selected_vent_lines:
         diagram = update_diagram(diagram, selected_vent_line)
 
