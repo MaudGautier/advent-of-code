@@ -17,7 +17,7 @@ def sum_depths(previous_n_depth: List[int], depth: int) -> Union[int, type(None)
 def count_nb_increases(input_file: str, window_size: int) -> int:
     total_increases = 0
     previous_depth_sum = None
-    previous_n_depths = [None]*(window_size-1)
+    previous_n_depths = [None] * (window_size - 1)
     with open(input_file) as file:
         lines = file.readlines()
         for line in lines:
@@ -32,6 +32,5 @@ def count_nb_increases(input_file: str, window_size: int) -> int:
 
 
 if __name__ == "__main__":
-    print(count_nb_increases("data/day01-input.txt", 1) == 1184) # should still be 1184
-    print(count_nb_increases("data/day01-input.txt", 3)) # 1158
-
+    print(count_nb_increases("data/day01-input.txt", 1) == 1184)  # should still be 1184
+    print(count_nb_increases("data/day01-input.txt", 3))  # 1158

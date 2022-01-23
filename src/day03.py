@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 from typing import List, Dict, NamedTuple, Callable
 
-Rates = NamedTuple('Rates', (
-    ('gamma_rate', int),
-    ('epsilon_rate', int),
-    ('oxygen_rate', int),
-    ('co2_rate', int),
-))
+Rates = NamedTuple(
+    "Rates",
+    (
+        ("gamma_rate", int),
+        ("epsilon_rate", int),
+        ("oxygen_rate", int),
+        ("co2_rate", int),
+    ),
+)
 
 
 def count_zeros_and_ones(diagnostic_report: List[str]) -> Dict[int, List[int]]:
@@ -34,8 +37,10 @@ def extract_least_common_bit(l: List[int]) -> str:
         return "0"
 
 
-def extract_bits(counts: Dict[int, List[int]], extract_function: Callable[[List[int]], str]) -> str:
-    binary = ''
+def extract_bits(
+    counts: Dict[int, List[int]], extract_function: Callable[[List[int]], str]
+) -> str:
+    binary = ""
     for index, digit_counts in sorted(counts.items()):
         binary += extract_function(digit_counts)
     return binary
@@ -45,11 +50,13 @@ def transform_binary_to_decimal(binary: str) -> int:
     max_power = len(binary) - 1
     decimal = 0
     for index, digit in enumerate(binary):
-        decimal += int(digit) * 2**(max_power-index)
+        decimal += int(digit) * 2 ** (max_power - index)
     return decimal
 
 
-def subset_numbers(numbers: List[str], index: int, extract_function: Callable[[List[int]], str]) -> List[str]:
+def subset_numbers(
+    numbers: List[str], index: int, extract_function: Callable[[List[int]], str]
+) -> List[str]:
     counts = count_zeros_and_ones(numbers)
     chosen_bit = extract_function(counts[index])
     selected_numbers = []
@@ -60,15 +67,16 @@ def subset_numbers(numbers: List[str], index: int, extract_function: Callable[[L
     return selected_numbers
 
 
-def extract_number(numbers: List[str], extract_function: Callable[[List[int]], str]) -> str:
+def extract_number(
+    numbers: List[str], extract_function: Callable[[List[int]], str]
+) -> str:
     remaining_numbers = numbers
     index = 0
-    while len(remaining_numbers) > 1: # and index <= len(numbers) (pour éviter infini ?)
+    while len(remaining_numbers) > 1:
         remaining_numbers = subset_numbers(remaining_numbers, index, extract_function)
         index += 1
 
-    return remaining_numbers[0] # checker si bien une longueur de 1 ?
-
+    return remaining_numbers[0]
 
 
 def generate_diagnostics(diagnostic_report: List[str]) -> Rates:
@@ -89,32 +97,34 @@ def multiply(rate1: int, rate2: int) -> int:
 
 
 def read_data(file_name: str) -> List[str]:
-    with open(file_name, 'r') as file:
+    with open(file_name, "r") as file:
         return [binary.strip() for binary in file.readlines()]
 
 
 if __name__ == "__main__":
     # Check with test data
-    test_data = ["00100",
-                 "11110",
-                 "10110",
-                 "10111",
-                 "10101",
-                 "01111",
-                 "00111",
-                 "11100",
-                 "10000",
-                 "11001",
-                 "00010",
-                 "01010"]
+    test_data = [
+        "00100",
+        "11110",
+        "10110",
+        "10111",
+        "10101",
+        "01111",
+        "00111",
+        "11100",
+        "10000",
+        "11001",
+        "00010",
+        "01010",
+    ]
     (gamma_rate, epsilon_rate, oxygen_rate, co2_rate) = generate_diagnostics(test_data)
     power_consumption = multiply(gamma_rate, epsilon_rate)
     life_support_rating = multiply(oxygen_rate, co2_rate)
-    print(gamma_rate == 22, epsilon_rate == 9, power_consumption == 9*22)
-    print(oxygen_rate == 23, co2_rate == 10, life_support_rating == 23*10)
+    print(gamma_rate == 22, epsilon_rate == 9, power_consumption == 9 * 22)
+    print(oxygen_rate == 23, co2_rate == 10, life_support_rating == 23 * 10)
 
     # Solution for 3-a
-    data = read_data('data/day03-input.txt')
+    data = read_data("data/day03-input.txt")
     (gamma_rate, epsilon_rate, oxygen_rate, co2_rate) = generate_diagnostics(data)
     power_consumption = multiply(gamma_rate, epsilon_rate)
     life_support_rating = multiply(oxygen_rate, co2_rate)

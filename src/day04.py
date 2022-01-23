@@ -17,15 +17,15 @@ MARKED_CARD = -1
 
 # Data file contains list of drawn numbers on the first line and boards on all following lines
 def read_data(file_name: str) -> Tuple[Draws, List[Board]]:
-    with open(file_name, 'r') as file:
+    with open(file_name, "r") as file:
         sections = file.read().strip().split("\n\n")
 
-    draws = [int(draw) for draw in sections[0].split(',')]
+    draws = [int(draw) for draw in sections[0].split(",")]
 
     boards = []
     for section in sections[1:]:
-        string_rows = section.split('\n')
-        board = [] # [[0]*5 for i in range(5)]
+        string_rows = section.split("\n")
+        board = []
         for string_row in string_rows:
             row = [int(cell) for cell in string_row.split()]
             board.append(row)
@@ -52,7 +52,9 @@ def is_board_won(board: Board) -> bool:
             return True
     # Check columns
     for column_index in range(len(board[0])):
-        column_values = [board[row_index][column_index] for row_index, row in enumerate(board)]
+        column_values = [
+            board[row_index][column_index] for row_index, row in enumerate(board)
+        ]
         if set(column_values) == {MARKED_CARD}:
             return True
 
@@ -78,10 +80,16 @@ def win_board(draws: Draws, board: Board) -> BingoBoardResult:
             break
 
     remaining_unmarked_cards = extract_unmarked_cards_from_board(board)
-    return BingoBoardResult(winning_index=draw_index, last_draw=draw, unmarked_cards=remaining_unmarked_cards)
+    return BingoBoardResult(
+        winning_index=draw_index,
+        last_draw=draw,
+        unmarked_cards=remaining_unmarked_cards,
+    )
 
 
-def extract_nth_winning_board(bingo_results: List[BingoBoardResult], nth_winning_board: int) -> BingoBoardResult:
+def extract_nth_winning_board(
+    bingo_results: List[BingoBoardResult], nth_winning_board: int
+) -> BingoBoardResult:
     sorted_bingo_results = sorted(bingo_results, key=lambda x: x.winning_index)
     return sorted_bingo_results[nth_winning_board]
 
@@ -96,39 +104,43 @@ def play_bingo(draws: Draws, boards: List[Board]) -> List[BingoBoardResult]:
 
 
 def calculate_board_score(last_drawn_number: int, unmarked_cards: Cards) -> int:
-    return sum(unmarked_cards)*last_drawn_number
+    return sum(unmarked_cards) * last_drawn_number
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Tests
     print("-- Tests on `is_board_won` function")
-    board_not_won = [[0]*5 for cell in range(0,5)]
-    board_won_by_row = [[0]*5 for cell in range(0,4)] + [[-1]*5]
-    board_won_by_column = [[0, -1, 0, 0, 0] for cell in range(0,5)]
+    board_not_won = [[0] * 5 for cell in range(0, 5)]
+    board_won_by_row = [[0] * 5 for cell in range(0, 4)] + [[-1] * 5]
+    board_won_by_column = [[0, -1, 0, 0, 0] for cell in range(0, 5)]
     print(is_board_won(board_not_won) == False)
     print(is_board_won(board_won_by_row) == True)
     print(is_board_won(board_won_by_column) == True)
 
     # Test data
     print("\n-- Tests on test data:")
-    (test_draws, test_boards) = read_data('data/day04-input-test.txt')
+    (test_draws, test_boards) = read_data("data/day04-input-test.txt")
     test_bingo_results = play_bingo(test_draws, test_boards)
     test_winner_board = extract_nth_winning_board(test_bingo_results, 0)
-    test_winner_board_score = calculate_board_score(test_winner_board.last_draw, test_winner_board.unmarked_cards)
+    test_winner_board_score = calculate_board_score(
+        test_winner_board.last_draw, test_winner_board.unmarked_cards
+    )
     print(test_winner_board_score == 4512)
 
     # Solution for 4-a
     print("\n-- Solution for 4-a:")
-    (draws, boards) = read_data('data/day04-input.txt')
+    (draws, boards) = read_data("data/day04-input.txt")
     bingo_results = play_bingo(draws, boards)
     winning_board = extract_nth_winning_board(bingo_results, 0)
-    winning_board_score = calculate_board_score(winning_board.last_draw, winning_board.unmarked_cards)
+    winning_board_score = calculate_board_score(
+        winning_board.last_draw, winning_board.unmarked_cards
+    )
     print("The score of the winning board is:", winning_board_score)
 
     # Solution for 4-b
     print("\n-- Solution for 4-a:")
     losing_board = extract_nth_winning_board(bingo_results, len(boards) - 1)
-    losing_board_score = calculate_board_score(losing_board.last_draw, losing_board.unmarked_cards)
+    losing_board_score = calculate_board_score(
+        losing_board.last_draw, losing_board.unmarked_cards
+    )
     print("The score of the losing board is:", losing_board_score)
-
-
