@@ -13,20 +13,14 @@ def calculate_fuel_amount_to_reach_target(
     return sum(fuel_amounts)
 
 
-def fancy_sum(max_value: int, min_value: int = 0) -> int:
-    total = 0
-    incrementor = 0
-    for lap in range(min_value, max_value + 1):
-        total += incrementor
-        incrementor += 1
-
-    return total
+def arithmetic_sum(max_value: int) -> int:
+    return int((max_value + 1) * max_value / 2)
 
 
 def calculate_non_linear_fuel_amount_to_reach_target(
     initial_positions: Positions, target: Position
 ) -> FuelAmount:
-    fuel_amounts = [fancy_sum(abs(target - p)) for p in initial_positions]
+    fuel_amounts = [arithmetic_sum(abs(target - p)) for p in initial_positions]
     return sum(fuel_amounts)
 
 
@@ -65,7 +59,6 @@ if __name__ == "__main__":
     print("The minimal fuel amount for the selected position is:", minimal_fuel)
 
     # Solution for 7-b
-    # TODO: improve perf
     print("\n-- Solution for 7-b:")
     minimal_fuel_non_linear = get_min_fuel(crab_positions, non_linear=True)
     print(
