@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from typing import Union, List
+from typing import List
 
 
 # Data is formated as: ["4887", "9307", "", "5533", "7981", ...]
