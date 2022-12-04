@@ -44,6 +44,29 @@ def part_one(items_list: Items) -> int:
     return summed_priority
 
 
+def find_faulty_item_in_bags(bag_one: str, bag_two: str, bag_three) -> str:
+    items_one = set(bag_one)
+    items_two = set(bag_two)
+    items_three = set(bag_three)
+    for item in items_one:
+        if item in items_two and item in items_three:
+            return item
+
+
+def part_two(items_list: Items) -> int:
+    summed_priorities = 0
+    number_of_groups = int(len(items_list) / 3)  # Assuming multiple of three groups
+    for idx in range(0, number_of_groups):
+        first_index = int(idx * 3)
+        (bag_one, bag_two, bag_three) = items_list[first_index: first_index + 3]
+        faulty_item = find_faulty_item_in_bags(bag_one, bag_two, bag_three)
+        summed_priorities += get_priority(faulty_item)
+
+    return summed_priorities
+
+    # groups = [[one, two, three) for [one, two, three] in
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data = [
@@ -56,6 +79,7 @@ if __name__ == "__main__":
     ]
     print("-- Tests on test data:")
     print(part_one(test_data) == 157)
+    print(part_two(test_data))
 
     # ---- REAL DATA ----
     data = read_data("./2022/data/day03-input.txt")
@@ -66,5 +90,6 @@ if __name__ == "__main__":
 
     # Solution for 2-b
     print("\n-- Solution for 2-b:")
+    print(part_two(data))
 
 # TODO: add complexity
