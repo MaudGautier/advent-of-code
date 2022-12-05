@@ -16,6 +16,16 @@ def part_one(data):
     return nb_inclusions
 
 
+def part_two(data):
+    nb_overlaps = 0
+    for ((start_range1, end_range1), (start_range2, end_range2)) in data:
+        if (start_range1 <= start_range2 <= end_range1) or (
+                start_range2 <= start_range1 <= end_range2):
+            nb_overlaps += 1
+
+    return nb_overlaps
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data = [
@@ -28,7 +38,7 @@ if __name__ == "__main__":
     ]
     print("-- Tests on test data:")
     print(part_one(test_data) == 2)
-    # print(part_two(test_data))
+    print(part_two(test_data) == 4)
 
     # ---- REAL DATA ----
     data = read_data("./2022/data/day04-input.txt")
@@ -39,6 +49,6 @@ if __name__ == "__main__":
 
     # Solution for 2-b
     print("\n-- Solution for 2-b:")
-    # print(part_two(data))
+    print(part_two(data))
 
 # TODO: add complexity
