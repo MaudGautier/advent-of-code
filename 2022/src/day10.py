@@ -33,6 +33,28 @@ def part_one(instructions):
     return total
 
 
+def print_CRT_row(during_cycle_register, row_index):
+    current_CRT_row = ""
+    for crt_position in range(row_index * 40, (row_index + 1) * 40):
+        cycle = crt_position + 1
+        # print("Cycle", cycle, ": CRT draws pixel in position =", crt_position, "sprite_middle_position =",
+        #       during_cycle_register[cycle])
+        sprite_position = [during_cycle_register[cycle] - 1, during_cycle_register[cycle],
+                           during_cycle_register[cycle] + 1]
+        if crt_position % 40 in sprite_position:
+            current_CRT_row += "#"
+        else:
+            current_CRT_row += "."
+
+    print(current_CRT_row)
+
+
+def part_two(instructions):
+    during_cycle_register = compute_cycle_register(instructions)
+    for i in range(6):
+        print_CRT_row(during_cycle_register, i)
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data = [
@@ -186,7 +208,7 @@ if __name__ == "__main__":
     ]
     print("-- Tests on test data:")
     print(part_one(test_data) == 13140)
-    # print(part_two(test_data) == 1)
+    part_two(test_data)
 
     # ---- REAL DATA ----
     data = read_data("./2022/data/day10-input.txt")
@@ -194,7 +216,7 @@ if __name__ == "__main__":
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data))  # 12880
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 2434
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    part_two(data)  # FCJAPJRE
