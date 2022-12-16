@@ -3,20 +3,32 @@ def read_data(file_name):
         return [line.strip() for line in file.readlines()]
 
 
+def initialise_empty_folder(tree_of_folders, path, value):
+    for folder in path[:-1]:
+        tree_of_folders = tree_of_folders[folder]
+    tree_of_folders[path[-1]] = value
+
+
+def append_file_to_folder(tree_of_folders, path, entry, value):
+    for folder in path[:-1]:
+        tree_of_folders = tree_of_folders[folder]
+    tree_of_folders[path[-1]][entry] = value
+
+
 # Structure:
 # { "/":
-#   [
-#    "a": [],
+#   {
+#    "a": {},
 #    "b.txt": 14848514,
 #    "c.txt": 8504156,
 #    "d":
-#    [
-#     "e": [],
+#    {
+#     "e": {},
 #     "f": 29116,
 #     "g": 2557,
 #     "h.lst": 62596,
-#    ],
-#   ]
+#    },
+#   }
 # }
 def create_tree_bis(commands):
     tree = {}
@@ -26,24 +38,41 @@ def create_tree_bis(commands):
         if command_fields[0] == "$" and command_fields[1] == "cd" and command_fields[2] != "..":
             current_folder = command_fields[2]
             current_path.append(current_folder)
-            # print("CDING", current_folder, "IN PATH", current_path)
         elif command_fields[0] == "$" and command_fields[1] == "cd" and command_fields[2] == "..":
-            current_folder = current_path.pop()
-            # print("CDING", current_folder, "IN PATH", current_path)
+            current_path.pop()
         elif command_fields[0] == "$" and command_fields[1] == "ls":
-            print("-- READING", current_folder, "IN PATH", current_path)
+            initialise_empty_folder(tree, current_path, {})
         elif command_fields[0] != "$" and command_fields[0] == "dir":
             new_dir = command_fields[1]
-            print("DIR", new_dir, "IS IN", current_folder, "IN PATH", current_path)
+            # not necessary but allows to add even an empty folder
+            append_file_to_folder(tree, current_path, new_dir, {})
         elif command_fields[0] != "$" and command_fields[0] != "dir":
             new_file = command_fields[1]
-            file_size = command_fields[0]
-            print("FILE", new_file, "IS IN", current_folder, "IN PATH", current_path, "WITH SIZE", file_size)
+            file_size = int(command_fields[0])
+            append_file_to_folder(tree, current_path, new_file, file_size)
+    return tree
+
+
+def compute_size(node, list_nodes_below_max):
+    size = 0
+    for key in node:
+        value = node[key]
+        if type(value) == int:
+            size += value
+        else:
+            child_node_size = compute_size(value, list_nodes_below_max)
+            size += child_node_size
+
+    if size <= 100000:
+        list_nodes_below_max.append(size)
+    return size
 
 
 def part_one(data):
     tree = create_tree_bis(data)
-    return False
+    list_nodes_below_max = []
+    dir_size = compute_size(tree, list_nodes_below_max)
+    return sum(list_nodes_below_max)
 
 
 if __name__ == "__main__":
@@ -64,6 +93,7 @@ if __name__ == "__main__":
         "$ cd e",
         "$ ls",
         "584 i",
+        # "dir NEW_FOLDER_EMPTY",
         "$ cd ..",
         "$ cd ..",
         "$ cd d",
@@ -79,10 +109,10 @@ if __name__ == "__main__":
     # ---- REAL DATA ----
     data = read_data("./2022/data/day07-input.txt")
 
-    # # Solution for part a
-    # print("\n-- Solution for part a:")
-    # print(part_one(data))
-    #
-    # # Solution for part b
-    # print("\n-- Solution for part b:")
+    # Solution for part 1
+    print("\n-- Solution for part 1:")
+    print(part_one(data))
+
+    # # Solution for part 2
+    # print("\n-- Solution for part 2:")
     # print(part_two(data))
