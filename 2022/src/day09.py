@@ -78,6 +78,41 @@ def part_one(motions):
     return len(set(list_tail_positions))
 
 
+def part_two(motions):
+    rope_positions = {
+        0: [(0, 0)],
+        1: [(0, 0)],
+        2: [(0, 0)],
+        3: [(0, 0)],
+        4: [(0, 0)],
+        5: [(0, 0)],
+        6: [(0, 0)],
+        7: [(0, 0)],
+        8: [(0, 0)],
+        9: [(0, 0)],
+    }
+
+    for motion in motions:
+        direction = motion[0]
+        steps = motion[1]
+        # print("------ For direction", direction)
+        for step in range(steps):
+            for rope in rope_positions:
+                if rope == 0:
+                    current_head_position = rope_positions[rope][-1]
+                    current_head_position = compute_new_head_position(current_head_position, direction)
+                    rope_positions[rope].append(current_head_position)
+                else:
+                    current_tail_position = rope_positions[rope][-1]
+                    current_head_position = rope_positions[rope - 1][-1]
+                    new_tail_position = compute_new_tail_position(current_head_position, current_tail_position)
+                    rope_positions[rope].append(new_tail_position)
+
+        # print("end rope positions", rope_positions)
+
+    return len(set(rope_positions[9]))
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data = [
@@ -90,9 +125,20 @@ if __name__ == "__main__":
         ("L", 5),
         ("R", 2),
     ]
+    test_data_2 = [
+        ("R", 5),
+        ("U", 8),
+        ("L", 8),
+        ("D", 3),
+        ("R", 17),
+        ("D", 10),
+        ("L", 25),
+        ("U", 20),
+    ]
     print("-- Tests on test data:")
     print(part_one(test_data) == 13)
-    # print(part_two(test_data) == 8)
+    print(part_two(test_data) == 1)
+    print(part_two(test_data_2) == 36)
 
     # ---- REAL DATA ----
     data = read_data("./2022/data/day09-input.txt")
@@ -100,7 +146,7 @@ if __name__ == "__main__":
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data))  # 5695
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 157320
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 2434
