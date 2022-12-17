@@ -1,3 +1,6 @@
+import math
+
+
 def read_data(file_name):
     with open(file_name, 'r') as file:
         return [line.strip() for line in file.readlines()]
@@ -97,6 +100,30 @@ def part_one(grid):
     return steps[start_position]
 
 
+def find_all_positions(grid, character):
+    all_positions = []
+    for row_index, row in enumerate(grid):
+        for col_index, col in enumerate(list(row)):
+            if col == character:
+                all_positions.append((row_index, col_index))
+
+    return all_positions
+
+
+def part_two(grid):
+    all_possible_starting_points = find_all_positions(grid, 'a') + [find_position(grid, 'S')]
+    end_position = find_position(grid, 'E')
+
+    steps = compute_steps(grid, end_position)
+
+    min_steps = math.inf
+    for possible_starting_point in all_possible_starting_points:
+        if possible_starting_point in steps:
+            min_steps = min(min_steps, steps[possible_starting_point])
+
+    return min_steps
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data = [
@@ -108,7 +135,7 @@ if __name__ == "__main__":
     ]
     print("-- Tests on test data:")
     print(part_one(test_data) == 31)
-    # print(part_two(test_data_2) == 2713310158)
+    print(part_two(test_data) == 29)
 
     # ---- REAL DATA ----
     data = read_data("./2022/data/day12-input.txt")
@@ -117,6 +144,6 @@ if __name__ == "__main__":
     print("\n-- Solution for part A:")
     print(part_one(data))  # 447
 
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data_2))  # 51382025916
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 446
