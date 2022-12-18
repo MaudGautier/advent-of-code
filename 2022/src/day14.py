@@ -29,6 +29,15 @@ def find_grid_dimensions(rock_paths):
     return (grid_left, grid_right, grid_depth)
 
 
+def update_grid_dimensions_with_floor(grid_left, grid_right, grid_depth):
+    grid_depth = grid_depth + 2
+    grid_width = 2 * (grid_depth + 1)
+    grid_left = min(grid_left, 500 - grid_width // 2)
+    grid_right = max(grid_right, 500 + grid_width // 2)
+
+    return (grid_left, grid_right, grid_depth)
+
+
 def add_path(grid, edge_1, edge_2, grid_left):
     dist_1, depth_1 = edge_1
     dist_2, depth_2 = edge_2
@@ -103,12 +112,12 @@ def drop_sand_unit(grid, grid_left):
     return rest_position
 
 
-def count_number_sand_units_resting(grid, grid_left):
+def count_number_sand_units_resting(grid, grid_left, finish_position):
     sand_units_resting = 0
 
     while True:
         new_rest_position = drop_sand_unit(grid, grid_left)
-        if new_rest_position is None:
+        if new_rest_position is finish_position:
             break
         sand_units_resting += 1
 
@@ -123,8 +132,24 @@ def part_one(rock_paths):
     grid = define_cave_grid(rock_paths, grid_left, grid_right, grid_depth)
     # print("\nInitial grid:")
     # draw_grid(grid)
+    # print("END GRID\n")
 
-    number_sand_units_resting = count_number_sand_units_resting(grid, grid_left)
+    number_sand_units_resting = count_number_sand_units_resting(grid, grid_left, None)
+    # draw_grid(grid)
+
+    return number_sand_units_resting
+
+
+def part_two(rock_paths):
+    (grid_left, grid_right, grid_depth) = find_grid_dimensions(rock_paths)
+    (grid_left, grid_right, grid_depth) = update_grid_dimensions_with_floor(grid_left, grid_right, grid_depth)
+    rock_paths.append([(grid_left, grid_depth), (grid_right, grid_depth)])
+    grid = define_cave_grid(rock_paths, grid_left, grid_right, grid_depth)
+    # print("\nInitial grid:")
+    # draw_grid(grid)
+    # print("END GRID\n")
+
+    number_sand_units_resting = count_number_sand_units_resting(grid, grid_left, (500, 0)) + 1
     # draw_grid(grid)
 
     return number_sand_units_resting
@@ -138,15 +163,15 @@ if __name__ == "__main__":
     ]
     print("-- Tests on test data:")
     print(part_one(test_data) == 24)
-    # print(part_two(test_data_2) == 140)
+    print(part_two(test_data) == 93)
 
     # ---- REAL DATA ----
     data = read_data("./2022/data/day14-input.txt")
 
     # Solution for part A
     print("\n-- Solution for part A:")
-    print(part_one(data))  # 5675
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 20383
+    print(part_one(data))  # 1330
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 26139
