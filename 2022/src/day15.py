@@ -46,54 +46,61 @@ def compute_sensor_trace_start_end_in_line(sensor, beacon, y_row):
     y_distance_to_line = compute_y_distance(sensor, y_row)
     # If manhattan distance is smaller than y_distance to line => NO overlap
     if manhattan_distance < y_distance_to_line:
-        return None, None
+        return None
 
     start = x_sensor - abs(manhattan_distance - y_distance_to_line)
     end = x_sensor + abs(manhattan_distance - y_distance_to_line)
     return start, end
 
 
-def get_min_max_with_none(a, b, min_max_function):
-    if a is None and b is None:
-        return None
-    if a is None: return b
-    if b is None: return a
-    return min_max_function(a, b)
-
-
-# Algo: define start and end for each record and extend the whole trace to it
-# NB: works only because all overlapping (if no overlap, would not work)
+# structure: limits = [(start, end), (start, end), (start, end)...] (for all sensors)
 def compute_trace_limits_in_row(records, y_row):
-    start_sensor_trace = None
-    end_sensor_trace = None
+    limits = []
     for sensor, beacon in records:
-        start, end = compute_sensor_trace_start_end_in_line(sensor, beacon, y_row)
-        start_sensor_trace = get_min_max_with_none(start, start_sensor_trace, min)
-        end_sensor_trace = get_min_max_with_none(end, end_sensor_trace, max)
-    return start_sensor_trace, end_sensor_trace
+        trace = compute_sensor_trace_start_end_in_line(sensor, beacon, y_row)
+        if trace is not None:
+            limits.append(trace)
+    return limits
 
 
-def find_all_points_filled_in_line(records, y_row, trace_limits):
-    start, end = trace_limits
-    points_filled_in_line = []
+def get_union(intervals):
+    sorted_intervals = sorted(intervals)
+    merged_intervals = []
+    for begin, end in sorted_intervals:
+        if merged_intervals and merged_intervals[-1][1] >= begin - 1:
+            merged_intervals[-1][1] = max(merged_intervals[-1][1], end)
+        else:
+            merged_intervals.append([begin, end])
+
+    return merged_intervals
+
+
+def find_points_filled_in_line(records, y_row):
+    points_on_line = []
     for sensor, beacon in records:
         x_sensor, y_sensor = sensor
         x_beacon, y_beacon = beacon
-        if y_sensor == y_row and start < x_sensor < end:
-            points_filled_in_line.append(sensor)
-        if y_beacon == y_row and start < x_beacon < end:
-            points_filled_in_line.append(beacon)
 
-    return points_filled_in_line
+        if y_sensor == y_row:
+            points_on_line.append(x_sensor)
+        if y_beacon == y_row:
+            points_on_line.append(x_beacon)
+
+    return set(points_on_line)
 
 
-def count_empty_points_in_line(trace_limits, records, y_row):
-    points_filled_in_line = find_all_points_filled_in_line(records, y_row, trace_limits)
+def count_empty_points_in_line(trace_union, records, y_row):
+    points_filled_in_line = find_points_filled_in_line(records, y_row)
 
-    start, end = trace_limits
-    nb_empty_points_in_line = end - start + 1
-    nb_empty_points_in_line -= len(set(points_filled_in_line))
-    return nb_empty_points_in_line
+    number_points_in_trace = 0
+    for point in points_filled_in_line:
+        for start, end in trace_union:
+            if start <= point <= end:
+                number_points_in_trace += 1
+
+    len_trace = sum([end - start + 1 for start, end in trace_union])
+
+    return len_trace - number_points_in_trace
 
 
 ## Option 1 (non efficace car grille principalement vide ??)
@@ -106,7 +113,9 @@ def count_empty_points_in_line(trace_limits, records, y_row):
 # 2. Récupère ceux qui ont x = 10
 def part_one(records, y_row):
     trace_limits_in_row = compute_trace_limits_in_row(records, y_row)
-    return count_empty_points_in_line(trace_limits_in_row, records, y_row)
+    trace_union = get_union(trace_limits_in_row)
+    # print(trace_union)
+    return count_empty_points_in_line(trace_union, records, y_row)
 
 
 if __name__ == "__main__":
