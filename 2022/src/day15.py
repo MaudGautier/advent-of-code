@@ -118,6 +118,21 @@ def part_one(records, y_row):
     return count_empty_points_in_line(trace_union, records, y_row)
 
 
+def part_two(records, max_x_y):
+    for row in range(0, max_x_y):
+        trace_limits_in_row = compute_trace_limits_in_row(records, row)
+        trace_union = get_union(trace_limits_in_row)
+        # culprit is the only row with trace of length 2
+        if len(trace_union) > 1:
+            print("ROW", row, ": trace", trace_union)
+            y = row
+            x = trace_union[0][1] + 1
+            x_bis = trace_union[1][0] - 1
+            # Check:
+            print(x == x_bis)
+            return 4000000 * x + y
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_lines = [
@@ -159,7 +174,8 @@ if __name__ == "__main__":
     # print(compute_sensor_trace_start_end_in_line(test_data[2][0], test_data[2][1], 10) == None)
     # print(compute_sensor_trace_start_end_in_line(test_data[3][0], test_data[3][1], 10) == (12, 12))
     print(part_one(test_data, 10) == 26)
-    # print(part_two(test_data) == 93)
+    print(part_two(test_data, 20) == 56000011)
+    # ROW 11 : trace [[-3, 13], [15, 25]]
 
     # ---- REAL DATA ----
     data = read_data("./2022/data/day15-input.txt")
@@ -167,7 +183,8 @@ if __name__ == "__main__":
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data, 2000000))  # 4861076
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 26139
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data, 4000000))  # 10649103160102
+    # ROW 3160102 : trace [[-844142, 2662274], [2662276, 4334402]]
