@@ -1,7 +1,9 @@
 import math
 
-
 # structure: {'AA': {'rate': 0, 'tunnels': ['DD', 'II', 'BB']}
+from itertools import combinations
+
+
 def convert_lines_to_data(lines):
     data = {}
     for line in lines:
@@ -216,7 +218,8 @@ def part_two(valves):
     max_flow = (None, None, 0)
     for id, elf_path in enumerate(elf_paths):
         already_explored_at_current_turn_by_elf = set(elf_path[0])
-        # print("elf path", id, elf_path)
+        if id % 10000 == 0:
+            print("Computing elf path", id, "...")
         elephant_paths = []
         explore(valves=valves,
                 paths=elephant_paths,
@@ -250,6 +253,54 @@ def part_two(valves):
     return max_flow[2]
 
 
+def part_two_BIS(valves):
+    shortest_paths = define_shortest_paths(valves)
+    # unvisited_valves correspond to closed valves or valves not worth visiting (rate = 0)
+    unvisited = {valve_name for valve_name in valves if valves[valve_name].get("rate", 0) != 0}
+
+    max_turns = 26
+
+    # Find all combinations of sets
+    max_flow = (None, None, 0)
+    for i in range(len(valves)):
+        print("== Running for iteration", i, "out of ", len(valves))
+        l = len(list(combinations(unvisited, i)))
+        for c in combinations(unvisited, i):
+            s1 = set(c)
+            s2 = unvisited - s1
+            elf_paths = []
+            explore(valves=valves,
+                    paths=elf_paths,
+                    current_path=["AA"],
+                    flow=0,
+                    unvisited=s1,
+                    shortest_paths=shortest_paths,
+                    current_valve='AA',
+                    max_turns=max_turns,
+                    current_turn=0,
+                    rate=0)
+            # explore(valves["AA"], unvisited=s1, path=[], max_turns=26, paths=paths)
+            best_elf_path = select_best_path(elf_paths)
+
+            elephant_paths = []
+            explore(valves=valves,
+                    paths=elephant_paths,
+                    current_path=["AA"],
+                    flow=0,
+                    unvisited=s2,
+                    shortest_paths=shortest_paths,
+                    current_valve='AA',
+                    max_turns=max_turns,
+                    current_turn=0,
+                    rate=0)
+            best_elephant_path = select_best_path(elephant_paths)
+            if best_elf_path[1] + best_elephant_path[1] > max_flow[2]:
+                max_flow = (best_elf_path, best_elephant_path, best_elf_path[1] + best_elephant_path[1])
+
+    print(max_flow)
+    return max_flow[2]
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_lines = [
@@ -278,17 +329,17 @@ if __name__ == "__main__":
     #   'JJ': {'rate': 21, 'tunnels': ['II']}
     # }
     print("-- Tests on test data:")
-    # print(part_one(test_data) == 1651)
-    print("SOLUTION", part_two(test_data))  # == 1707
-    # print(part_two(test_data) == 1707)
+    print(part_one(test_data) == 1651)
+    print(part_two_BIS(test_data) == 1707)
 
-    # # # # ---- REAL DATA ----
+    # # # # # ---- REAL DATA ----
     data = read_data("./2022/data/day16-input.txt")
-    # # #
-    # # # # Solution for part A
-    # # # print("\n-- Solution for part A:")
-    # # print(part_one(data))  # 2080
-    # # #
-    # # # # Solution for part B
-    # print("\n-- Solution for part B:")
-    print(part_two(data))  # 2609 TOO LOW
+
+    # Solution for part A
+    print("\n-- Solution for part A:")
+    print(part_one(data))  # 2080
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two_BIS(data))  # 2752
+    # Runs in ~ 12 min
