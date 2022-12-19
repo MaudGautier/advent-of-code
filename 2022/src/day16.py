@@ -66,23 +66,30 @@ def define_shortest_paths(valves):
 
 
 def explore(valves, paths, current_path, flow, unvisited, shortest_paths, current_valve, max_turns, current_turn, rate):
-    # print("current_valve", current_valve)
-    if len(unvisited) == 0 or current_turn >= max_turns:
+    if len(unvisited) == 0:  # or current_turn >= max_turns:
         new_flow = (max_turns - current_turn) * rate
-        # Do not need current_path in principle (at least for part 1) - return it anyway to check
-        paths.append((current_path, flow + new_flow))
+        nb_turns_until_max = max_turns - current_turn
+        paths.append((current_path + nb_turns_until_max * [None], flow + new_flow))
         return flow
 
     for next_valve in unvisited:
         # To get to valve + open the valve
         additional_turns = shortest_paths[current_valve][next_valve] + 1
 
+        # Stop exploring if end number turns finished
+        if current_turn + additional_turns > max_turns:
+            additional_flow = (max_turns - current_turn) * rate
+            nb_turns_until_max = max_turns - current_turn
+            paths.append((current_path + nb_turns_until_max * [None], flow + additional_flow))
+            continue
+
         # Explore next valve
         new_rate = valves[next_valve].get("rate", 0)
         additional_flow = rate * additional_turns
+        number_turns_in_between = additional_turns - 1
         explore(valves=valves,
                 paths=paths,
-                current_path=current_path + [next_valve],
+                current_path=current_path + number_turns_in_between * [None] + [next_valve],
                 flow=flow + additional_flow,
                 unvisited=unvisited - {next_valve},
                 shortest_paths=shortest_paths,
@@ -106,6 +113,7 @@ def part_one(valves):
     unvisited_valves = {valve_name for valve_name in valves if valves[valve_name].get("rate", 0) != 0}
 
     paths = []
+    max_turns = 30
     explore(valves=valves,
             paths=paths,
             current_path=[],
@@ -113,9 +121,14 @@ def part_one(valves):
             unvisited=unvisited_valves,
             shortest_paths=shortest_paths,
             current_valve='AA',
-            max_turns=30,
+            max_turns=max_turns,
             current_turn=0,
             rate=0)
+
+    print("ALL PATHS")
+    for path in paths:
+        if len(path[0]) != max_turns + 1:
+            print("PROBLEM", len(path[0]), path)
 
     return select_best_path(paths)
     # Puis explorer l'arbre des unvisited (= on ouvre la valve) et calculer pour chaque path son flow total
