@@ -66,7 +66,8 @@ def define_shortest_paths(valves):
 
 
 def explore(valves, paths, current_path, flow, unvisited, shortest_paths, current_valve, max_turns, current_turn, rate):
-    if len(unvisited) == 0:  # or turn >= max_turns
+    # print("current_valve", current_valve)
+    if len(unvisited) == 0 or current_turn >= max_turns:
         new_flow = (max_turns - current_turn) * rate
         # Do not need current_path in principle (at least for part 1) - return it anyway to check
         paths.append((current_path, flow + new_flow))
@@ -75,12 +76,6 @@ def explore(valves, paths, current_path, flow, unvisited, shortest_paths, curren
     for next_valve in unvisited:
         # To get to valve + open the valve
         additional_turns = shortest_paths[current_valve][next_valve] + 1
-
-        # Stop exploring if end node
-        if additional_turns == 1 or current_turn + additional_turns > max_turns:
-            additional_flow = (max_turns - current_turn) * rate
-            paths.append((current_path, flow + additional_flow))
-            continue
 
         # Explore next valve
         new_rate = valves[next_valve].get("rate", 0)
