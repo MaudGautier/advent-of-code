@@ -66,6 +66,15 @@ def define_shortest_paths(valves):
 
 
 def explore(valves, paths, current_path, flow, unvisited, shortest_paths, current_valve, max_turns, current_turn, rate):
+    # if len(visited_by_elf) > 0:
+    #     print("VISITED BY ELF", visited_by_elf)
+    #     already_explored_at_current_turn_by_elf = set(visited_by_elf[0:current_turn + 1])
+    #     print("current turn", current_turn, "already explored", already_explored_at_current_turn_by_elf)
+    #     print("unvisited", unvisited - already_explored_at_current_turn_by_elf, "current_path", current_path)
+    # already_explored_at_current_turn_by_elf = set(visited_by_elf[0:current_turn + 1])  # 3 ok
+    # already_explored_at_current_turn_by_elf = set(visited_by_elf)  # 3 ok
+    # unvisited = unvisited - already_explored_at_current_turn_by_elf
+
     if len(unvisited) == 0:  # or current_turn >= max_turns:
         new_flow = (max_turns - current_turn) * rate
         nb_turns_until_max = max_turns - current_turn
@@ -73,6 +82,9 @@ def explore(valves, paths, current_path, flow, unvisited, shortest_paths, curren
         return flow
 
     for next_valve in unvisited:
+        # if next_valve in visited_by_elf[0: current_turn + 4]:
+        #     print("\nALREADY VISITED ?", next_valve, "Current turn", current_turn, "\nvisited_by_elf", visited_by_elf,
+        #           "\ncurrent_path", current_path)
         # To get to valve + open the valve
         additional_turns = shortest_paths[current_valve][next_valve] + 1
 
@@ -100,9 +112,11 @@ def explore(valves, paths, current_path, flow, unvisited, shortest_paths, curren
 
 
 def select_best_path(paths):
-    max_val = 0
+    max_val = (None, 0)
     for path in paths:
-        max_val = max(max_val, path[1])
+        if path[1] > max_val[1]:
+            max_val = (path[0], path[1])
+        # max_val = max(max_val, path[1])
     return max_val
 
 
@@ -111,6 +125,7 @@ def part_one(valves):
 
     # unvisited_valves correspond to closed valves or valves not worth visiting (rate = 0)
     unvisited_valves = {valve_name for valve_name in valves if valves[valve_name].get("rate", 0) != 0}
+    # print(unvisited_valves)
 
     paths = []
     max_turns = 30
@@ -125,14 +140,114 @@ def part_one(valves):
             current_turn=0,
             rate=0)
 
-    print("ALL PATHS")
     for path in paths:
+        if path[1] == 104:
+            print("OK", path)
+
+    # print("ALL PATHS")
+    # for path in paths:
+    #     if len(path[0]) != max_turns + 1:
+    #         print("PROBLEM", len(path[0]), path)
+
+    return select_best_path(paths)[1]
+    # Puis explorer l'arbre des unvisited (= on ouvre la valve) et calculer pour chaque path son flow total
+    # Puis on prend le max des paths
+
+
+# def select_best_combo
+
+def part_two(valves):
+    shortest_paths = define_shortest_paths(valves)
+    # unvisited_valves correspond to closed valves or valves not worth visiting (rate = 0)
+    unvisited_valves = {valve_name for valve_name in valves if valves[valve_name].get("rate", 0) != 0}
+
+    # 26 minutes --> I get the best path + elephant gets the best path, considering the new visited
+    # I get my paths => some are visited
+    # Elephants get his paths given what I already visited
+    # We iterate this over all combinations of unvisited + me
+
+    # Idea=
+    # J'explore mon path
+    # Elephant explore son path SAUF QUE = à chaque étape, les unvisited se réduisent de ceux visités par moi en plus à ce stade
+    # max de mon flow + elephant flow
+    elf_paths = []
+    max_turns = 26
+    explore(valves=valves,
+            paths=elf_paths,
+            current_path=["AA"],
+            flow=0,
+            unvisited=unvisited_valves,
+            shortest_paths=shortest_paths,
+            current_valve='AA',
+            max_turns=max_turns,
+            current_turn=0,
+            rate=0)
+    print("ALL PATHS")
+    only_paths = []
+    for path in elf_paths:
+        only_paths.append(path[0])
         if len(path[0]) != max_turns + 1:
             print("PROBLEM", len(path[0]), path)
 
-    return select_best_path(paths)
-    # Puis explorer l'arbre des unvisited (= on ouvre la valve) et calculer pour chaque path son flow total
-    # Puis on prend le max des paths
+        # print(len(path[0]) == max_turns + 1)
+    # print(only_paths[0])
+    print("length", len(only_paths))
+    print("length2", len(set(tuple(row) for row in only_paths)))
+    # print(select_best_path(elf_paths))
+    # # print(elf_paths[0], elf_paths[1])
+    # print(len(elf_paths))
+    # print(elf_paths)
+    # elephant_paths = []
+    # explore(valves=valves,
+    #         paths=elephant_paths,
+    #         current_path=["AA"],
+    #         flow=0,
+    #         unvisited=unvisited_valves,
+    #         shortest_paths=shortest_paths,
+    #         current_valve='AA',
+    #         max_turns=max_turns,
+    #         current_turn=0,
+    #         rate=0,
+    #         visited_by_elf=elf_paths[0][0])
+    # print("EL PATH", elephant_paths)
+    for elf_path in elf_paths:
+        if elf_path[1] == 104:
+            print("EFL", elf_path)
+    max_flow = (None, None, 0)
+    for id, elf_path in enumerate(elf_paths):
+        already_explored_at_current_turn_by_elf = set(elf_path[0])
+        # print("elf path", id, elf_path)
+        elephant_paths = []
+        explore(valves=valves,
+                paths=elephant_paths,
+                current_path=["AA"],
+                flow=0,
+                unvisited=unvisited_valves - already_explored_at_current_turn_by_elf,
+                shortest_paths=shortest_paths,
+                current_valve='AA',
+                max_turns=max_turns,
+                current_turn=0,
+                rate=0)
+
+        # for path in elephant_paths:
+        #     only_paths.append(path[0])
+        #     if len(path[0]) != max_turns + 1:
+        #         print("PROBLEM", len(path[0]), path)
+
+        best_elephant_path = select_best_path(elephant_paths)
+
+        elf_flow = elf_path[1]
+        elephant_flow = best_elephant_path[1]
+
+        if elephant_flow + elf_flow > max_flow[2]:
+            # print("BEST", elephant_flow + elf_flow, best_elephant_path, elf_path)
+            max_flow = (elf_path, best_elephant_path, elephant_flow + elf_flow)
+        # print("best el", best_elephant_path)
+    print(max_flow[2], max_flow)
+    # print("ELEPHANT PATHS", elephant_paths)
+    # print("ELF PATHS", elf_paths)
+
+    return max_flow[2]
 
 
 if __name__ == "__main__":
@@ -163,16 +278,17 @@ if __name__ == "__main__":
     #   'JJ': {'rate': 21, 'tunnels': ['II']}
     # }
     print("-- Tests on test data:")
-    print(part_one(test_data) == 1651)
-    # print(part_two(test_data, 20) == 56000011)
+    # print(part_one(test_data) == 1651)
+    print("SOLUTION", part_two(test_data))  # == 1707
+    # print(part_two(test_data) == 1707)
 
-    # ---- REAL DATA ----
+    # # # # ---- REAL DATA ----
     data = read_data("./2022/data/day16-input.txt")
-
-    # Solution for part A
-    print("\n-- Solution for part A:")
-    print(part_one(data))  # 2080
-    #
-    # # Solution for part B
+    # # #
+    # # # # Solution for part A
+    # # # print("\n-- Solution for part A:")
+    # # print(part_one(data))  # 2080
+    # # #
+    # # # # Solution for part B
     # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 10649103160102
+    print(part_two(data))  # 2609 TOO LOW
