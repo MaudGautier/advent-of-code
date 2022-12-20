@@ -332,7 +332,7 @@ if __name__ == "__main__":
     print(part_one(test_data) == 1651)
     print(part_two_BIS(test_data) == 1707)
 
-    # # # # # ---- REAL DATA ----
+    # ---- REAL DATA ----
     data = read_data("./2022/data/day16-input.txt")
 
     # Solution for part A

@@ -3,6 +3,7 @@
 # 2
 # 1
 # 0
+import math
 from types import SimpleNamespace
 
 
@@ -163,7 +164,8 @@ def compute_height(height, rock):
     return height
 
 
-def part_one(jets):
+def settle_rocks(jets, n_rocks, init_phase, period):
+    n_turns = min(n_rocks + 1, init_phase + period)
     all_settled_points = set()
 
     number_rocks_settled = 0
@@ -172,7 +174,8 @@ def part_one(jets):
     jets_length = len(jets)
     number_jet_applied = 0
     current_height = 0
-    while number_rocks_settled < 2023:
+    heights_sequence = []
+    while number_rocks_settled < n_turns:
         # Create new rock
         rock_id = number_rocks_seen % 5 + 1
         rock = select_rock(rock_id, 2, next_y)
@@ -196,10 +199,54 @@ def part_one(jets):
                 number_rocks_settled += 1
                 all_settled_points.update(rock.get_points())
                 # print("Rock at end", rock.get_points())
+                previous_height = current_height
                 current_height = compute_height(current_height, rock)
                 next_y = compute_next_y(current_height)
+                heights_sequence.append(current_height - previous_height)
 
-    return current_height - 1
+    # print(heights_sequence)
+
+    return (current_height - 1, heights_sequence)
+
+
+def part_one(jets):
+    return settle_rocks(jets, 2022, math.inf, math.inf)[0]
+
+
+def part_two(jets, period, init_phase):
+    # period and init_phase values obtained empirically by printing difference of heights at each round
+    # FOR REAL DATA
+    # >> > len(init)
+    # 229
+    # >> > len(period)
+    # 1745
+    # >> > len(wind)
+    # 10091
+
+    finish = 1000000000000
+    current_height, diff_heights_sequence = settle_rocks(jets, 2022, init_phase, period)
+    periodic_diff_heights = diff_heights_sequence[init_phase:]
+    init_diff_heights = diff_heights_sequence[:init_phase]
+    print(len(periodic_diff_heights) == period)
+    print(len(init_diff_heights) == init_phase)
+
+    to_add_at_each_period = sum(periodic_diff_heights)
+    print("to_add_at_each_period", to_add_at_each_period)
+
+    number_cycles = (finish - init_phase) // period
+    remaining = (finish - init_phase) % period
+    print("number_cycles", number_cycles)
+
+    print(finish == number_cycles * period + init_phase + remaining)
+    print(finish, number_cycles * period + init_phase, remaining)
+
+    heights_init_phase = sum(init_diff_heights)
+    heights_periods = sum(periodic_diff_heights) * number_cycles
+    remaining_heights = sum(periodic_diff_heights[:remaining])
+
+    total_height = heights_init_phase + heights_periods + remaining_heights
+
+    return total_height + 1
 
 
 def read_data(file_name):
@@ -212,7 +259,7 @@ if __name__ == "__main__":
     test_data = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
     print("-- Tests on test data:")
     print(part_one(test_data) == 3068)
-    # print(part_two(test_data) == 1707)
+    print(part_two(test_data, 35, 18) == 1514285714288)
 
     # ---- REAL DATA ----
     data = read_data("./2022/data/day17-input.txt")
@@ -221,6 +268,6 @@ if __name__ == "__main__":
     print("\n-- Solution for part A:")
     print(part_one(data))  # 3202
 
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 2752
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data, 1745, 229))  # 1591977077352
