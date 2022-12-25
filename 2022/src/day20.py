@@ -1,7 +1,8 @@
-def update_current_indexes(current_indexes, previous_index_of_number_moved, new_index_of_number_moved):
+def update_current_indexes(current_indexes, previous_index_of_number_moved, new_index_of_number_moved,
+                           original_sequence):
     new_current_indexes = current_indexes.copy()
     for id, current_index in enumerate(current_indexes):
-        # print(id, current_index)
+        # print(id, current_index, original_sequence[id], previous_index_of_number_moved, new_index_of_number_moved)
         if previous_index_of_number_moved < current_index and new_index_of_number_moved < current_index:
             # print("was before and remains before")
             tmp = "ok"
@@ -17,11 +18,16 @@ def update_current_indexes(current_indexes, previous_index_of_number_moved, new_
         elif previous_index_of_number_moved == current_index:
             # print("the number moved is the current number checked => goes to its new position")
             new_current_indexes[id] = new_index_of_number_moved
-        elif new_index_of_number_moved == current_index:
+        elif new_index_of_number_moved == current_index and previous_index_of_number_moved < current_index:
             # NB: probablement vrai parce qu'il était avant
             # print(
             #     "????? the number has been moved to the current number index checked => the current number goes to position - 1")
             new_current_indexes[id] = current_index - 1
+        elif new_index_of_number_moved == current_index and previous_index_of_number_moved > current_index:
+            # NB: probablement vrai parce qu'il était avant
+            # print(
+            #     "????? the number has been moved to the current number index checked => the current number goes to position + 1")
+            new_current_indexes[id] = current_index + 1
         else:
             print("NOT DEALT", previous_index_of_number_moved, new_index_of_number_moved, current_index)
 
@@ -31,6 +37,8 @@ def update_current_indexes(current_indexes, previous_index_of_number_moved, new_
 def part_one(sequence):
     original_sequence = sequence.copy()
     current_indexes = [i for i in range(len(sequence))]
+    # correct_indexes = [[1, 0, 2, 3, 4, 5, 6], [0, 2, 1, 3, 4, 5, 6], [0, 1, 4, 2, 3, 5, 6], [0, 1, 3, 5, 2, 4, 6],
+    #                    [0, 1, 2, 4, 6, 3, 5], [0, 1, 2, 4, 6, 3, 5], [0, 1, 2, 5, 6, 4, 3]]
 
     for i in range(len(original_sequence)):
         current_value = original_sequence[i]
@@ -45,9 +53,10 @@ def part_one(sequence):
         # print("NEW SEQ", new_new_sequence, "with", current_value, "at new index", new_index)
         sequence = new_new_sequence
         # Update current_indexes
-        current_indexes = update_current_indexes(current_indexes, current_index, new_index)
+        current_indexes = update_current_indexes(current_indexes, current_index, new_index, original_sequence)
         # print("new_current_indexes", current_indexes, "for original sequence", original_sequence)
         # print("????", current_indexes == [0, 1, 2, 4, 6, 3, 5])
+        # print(current_indexes == correct_indexes[i], current_indexes, correct_indexes[i])
 
     # print(new_new_sequence)
     id_0 = new_new_sequence.index(0)
@@ -170,7 +179,7 @@ def part_one(sequence):
     # # Update current_indexes
     # current_indexes = update_current_indexes(current_indexes, current_index, new_index)
     # print("new_current_indexes", current_indexes, "for original sequence", original_sequence)
-    # print("????", current_indexes == [0, 1, 2, 4, 6, 3, 5])
+    # print("????", current_indexes == [0, 1, 2, 5, 6, 4, 3])
 
 
 def read_data(file_name):
