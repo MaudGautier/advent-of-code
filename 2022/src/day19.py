@@ -71,13 +71,13 @@ def dfs(blueprint, end_time):
     robots[ORE] = 1
 
     max_robots = get_max_robots(blueprint)
-    print("MAX ROBOTS", max_robots)
+    # print("MAX ROBOTS", max_robots)
 
     queue = [(robots, materials, 0, set())]
 
     nb_iterations = 0
     best_at_time = {time: 0 for time in range(end_time + 1)}
-    print(best_at_time)
+    # print(best_at_time)
 
     max_nb_geodes_if_this_state_until_end = 0
 
@@ -123,22 +123,75 @@ def dfs(blueprint, end_time):
     return best_at_time[end_time]
 
 
+def convert_data_to_blueprints(lines):
+    blueprints = []
+    for line in lines:
+        materials = {material: 0 for material in MATERIALS}
+        blueprint = {robot: materials.copy() for robot in ROBOTS}
+
+        key, robots_costs = line.strip().split(":")
+        for robot_costs in robots_costs.split(".")[:-1]:
+            robot_name = robot_costs.split(" ")[2]
+            costs = robot_costs.split(" costs ")[1]
+            individual_costs = costs.split(" and ")
+            for individual_cost in individual_costs:
+                qty, mat_name = individual_cost.split(" ")
+                blueprint[robot_name][mat_name] = int(qty)
+        blueprints.append(blueprint)
+    return blueprints
+
+
+def part_one(blueprints, end_time):
+    id = 0
+    summed_value = 0
+    for blueprint in blueprints:
+        print("\nNEW BLUEPRINT", blueprint)
+        id += 1
+        value = dfs(blueprint, end_time)
+        print("blueprint", id, ":", value)
+        summed_value += value * (id)
+    return summed_value
+
+
+def read_data(file_name):
+    with open(file_name, 'r') as file:
+        return file.readlines()
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     sub_test_data_1 = "Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian."
-    sub_test_data_2 = "Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian."
     print("-- Tests on test data:")
-    test_blueprint1 = {
-        "ore": {"ore": 4, "clay": 0, "obsidian": 0, "geode": 0},
-        "clay": {"ore": 2, "clay": 0, "obsidian": 0, "geode": 0},
-        "obsidian": {"ore": 3, "clay": 14, "obsidian": 0, "geode": 0},
-        "geode": {"ore": 2, "clay": 0, "obsidian": 7, "geode": 0},
-    }
-    test_blueprint2 = {
-        "ore": {"ore": 2, "clay": 0, "obsidian": 0, "geode": 0},
-        "clay": {"ore": 3, "clay": 0, "obsidian": 0, "geode": 0},
-        "obsidian": {"ore": 3, "clay": 8, "obsidian": 0, "geode": 0},
-        "geode": {"ore": 3, "clay": 0, "obsidian": 12, "geode": 0},
-    }
+    # test_blueprint1 = {
+    #     "ore": {"ore": 4, "clay": 0, "obsidian": 0, "geode": 0},
+    #     "clay": {"ore": 2, "clay": 0, "obsidian": 0, "geode": 0},
+    #     "obsidian": {"ore": 3, "clay": 14, "obsidian": 0, "geode": 0},
+    #     "geode": {"ore": 2, "clay": 0, "obsidian": 7, "geode": 0},
+    # }
+    test_blueprint1 = convert_data_to_blueprints([sub_test_data_1])[0]
     print(dfs(test_blueprint1, 24) == 9)
+
+    sub_test_data_2 = "Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian."
+    # test_blueprint2 = {
+    #     "ore": {"ore": 2, "clay": 0, "obsidian": 0, "geode": 0},
+    #     "clay": {"ore": 3, "clay": 0, "obsidian": 0, "geode": 0},
+    #     "obsidian": {"ore": 3, "clay": 8, "obsidian": 0, "geode": 0},
+    #     "geode": {"ore": 3, "clay": 0, "obsidian": 12, "geode": 0},
+    # }
+    test_blueprint2 = convert_data_to_blueprints([sub_test_data_2])[0]
     print(dfs(test_blueprint2, 24) == 12)
+    test_blueprints = convert_data_to_blueprints([sub_test_data_1, sub_test_data_2])
+    print(part_one(test_blueprints, 24) == 33)
+
+    # ---- REAL DATA ----
+    data = read_data("./2022/data/day19-input.txt")
+
+    # Solution for part A
+    print("\n-- Solution for part A:")
+    blueprints = convert_data_to_blueprints(data)
+    print(blueprints)
+    print(part_one(blueprints, 24))  # 1675
+
+    # # Solution for part B
+    # print("\n-- Solution for part B:")
+    # print(part_two(data))  # 3316 INCORRECT TOO HIGH # 2072 TOO LOW # Correct = 2090 surface (1060 trapped)
