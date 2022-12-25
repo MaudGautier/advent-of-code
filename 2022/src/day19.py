@@ -27,6 +27,27 @@ def can_buy_robot(robot_costs, available_rocks):
     return True
 
 
+def compute_potential(owned_robots, owned_rocks, time_remaining):
+    # new_rocks = owned_rocks.copy()
+    # new_robots = owned_robots.copy()
+    # new_robots[new_robot] += 1
+    # new_rocks
+    # nb_acquirable_geode_robots = time_remaining
+    # 3 remaining: 3) +1 robot, 2) +1 rock + 2 robots 1) 1+2 rocks + 3 robots ###### 0) 1+2+3 + 4 robots
+    # = 1*(time-1) + 2 * (time-2) + 3 *(time-3) + ....
+
+    # 0 remaining: 0
+    # 1 remaining: 1) + 1 robot
+    # 2 remaining: 2) + 1 robot, 1) + 1+1 robot + 1 rock == 1 rock
+    # 3 remaining: 3) + 1 robot, 2) + 1+1 robot + 1 rock 1) + 1+1 robot + 1+2 rock == 3 rock
+    #
+
+    # Under the optimistic assumption that 1 geode robot is added every minute
+    # Max acquirable = sum of 0 --> n (with n = time_remaining) - at each step: add previous nb of rocks + what collected with new robots
+    max_acquirable = time_remaining * (time_remaining - 1) / 2
+    return owned_rocks["geode"] + time_remaining * owned_robots["geode"] + max_acquirable
+
+
 # queue = queue des états à parcourir (robots, materials, time)
 # while queue: for robot in blueprint => soit on peut ajouter le robot (= matos plus élevé que besoin pour chaque) => ajoute robot et append, soit on peut pas ajouter => on n'ajoute pas et append
 
@@ -34,7 +55,7 @@ def can_buy_robot(robot_costs, available_rocks):
 def dfs():
     init_robots = {"ore": 1, "clay": 0, "obsidian": 0, "geode": 0}
     init_rocks = {"ore": 0, "clay": 0, "obsidian": 0, "geode": 0}
-    init_time_remaining = 3
+    init_time_remaining = 24
     blueprint = {
         "ore": {"ore": 4, "clay": 0, "obsidian": 0, "geode": 0},
         "clay": {"ore": 2, "clay": 0, "obsidian": 0, "geode": 0},
@@ -54,21 +75,26 @@ def dfs():
         if number_it % 100000 == 0:
             print("\n----", number_it, ":", len(queue), "(time:", time_remaining, ") best so far:",
                   max_number_geodes_if_this_state_until_end)
-        print("\n----- queue", len(queue), queue)
-        if len(queue) > 1 and queue[0] == queue[1]:
-            print("FIRST TWO IDENTICAL")
+        # print("\n----- queue", len(queue), queue)
+        # if len(queue) > 1 and queue[0] == queue[1]:
+        #     print("FIRST TWO IDENTICAL")
         owned_robots, owned_rocks, time_remaining = queue.pop(0)
-        print("robots", owned_robots)
-        print("rocks", owned_rocks)
-        print("time", time_remaining)
+        # print("robots", owned_robots)
+        # print("rocks", owned_rocks)
+        # print("time", time_remaining)
         max_number_geodes_if_this_state_until_end = max(owned_rocks["geode"] + owned_robots["geode"] * time_remaining,
                                                         max_number_geodes_if_this_state_until_end)
+        # print("max_number_clays_if_this_state_until_end", owned_rocks["clay"] + owned_robots["clay"] * time_remaining)
+
+        potential = compute_potential(owned_robots, owned_rocks, time_remaining)
+        if potential < max_number_geodes_if_this_state_until_end:
+            continue
 
         if time_remaining - 1 >= 0:
             can_buy = False
 
             for robot, robot_costs in blueprint.items():
-                print("ROBOT", robot, can_buy_robot(robot_costs, owned_rocks))
+                # print("ROBOT", robot, can_buy_robot(robot_costs, owned_rocks))
                 # You can buy an additional robot
                 if can_buy_robot(robot_costs, owned_rocks):
                     # You choose to buy it
