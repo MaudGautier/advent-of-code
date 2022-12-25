@@ -20,6 +20,9 @@
 #     #     paths.append()
 
 
+OPTIMISED_ROBOT = "clay"  # "geode"
+
+
 def can_buy_robot(robot_costs, available_rocks):
     for rock, cost in robot_costs.items():
         if available_rocks[rock] < cost:
@@ -45,11 +48,52 @@ def compute_potential(owned_robots, owned_rocks, time_remaining):
     # Under the optimistic assumption that 1 geode robot is added every minute
     # Max acquirable = sum of 0 --> n (with n = time_remaining) - at each step: add previous nb of rocks + what collected with new robots
     max_acquirable = time_remaining * (time_remaining - 1) / 2
-    return owned_rocks["geode"] + time_remaining * owned_robots["geode"] + max_acquirable
+    return owned_rocks[OPTIMISED_ROBOT] + time_remaining * owned_robots[OPTIMISED_ROBOT] + max_acquirable
 
 
 # queue = queue des états à parcourir (robots, materials, time)
 # while queue: for robot in blueprint => soit on peut ajouter le robot (= matos plus élevé que besoin pour chaque) => ajoute robot et append, soit on peut pas ajouter => on n'ajoute pas et append
+
+
+def is_not_useful_anymore(rock, owned_robots, owned_rocks, time_remaining, blueprint):
+    if rock == OPTIMISED_ROBOT:
+        return False
+    max_amount_required = max([robot_costs[rock] for rob, robot_costs in blueprint.items()])
+    if owned_rocks[rock] + time_remaining * owned_robots[rock] >= time_remaining * max_amount_required:
+        return True
+    return False
+
+
+def compute_useful_robots(owned_robots, owned_rocks, time_remaining, blueprint):
+    # For any resource R that's not geode:
+    # if you already have X robots creating resource R,
+    # a current stock of Y for that resource,
+    # T minutes left,
+    # and no robot requires more than Z of resource R to build,
+    # and X * T+Y >= T * Z,
+    # then you never need to build another robot mining R anymore.
+    useful_robots = ["geode"]
+    for rock in ["ore", "clay", "obsidian"]:
+        max_amount_required = max([robot_costs[rock] for rob, robot_costs in blueprint.items()])
+        # print(rock, max_amount_required)
+        # print("for rock", rock, ":", owned_rocks[rock] + time_remaining * owned_robots[rock],
+        #       time_remaining * max_amount_required)
+        if owned_rocks[rock] + time_remaining * owned_robots[rock] < time_remaining * max_amount_required:
+            useful_robots.append(rock)
+
+    return useful_robots
+
+    # for robot, robot_costs in blueprint.items():
+
+
+def compute_possible_robots(owned_rocks, blueprint):
+    possible_robots = {"ore"}
+    for robot, robot_costs in blueprint.items():
+        if can_buy_robot(robot_costs, owned_rocks):
+            possible_robots.add(robot)
+    if OPTIMISED_ROBOT in possible_robots:
+        return {OPTIMISED_ROBOT}
+    return possible_robots
 
 
 def dfs():
@@ -63,6 +107,13 @@ def dfs():
         "geode": {"ore": 2, "clay": 0, "obsidian": 7, "geode": 0},
     }
     queue = [(init_robots, init_rocks, init_time_remaining)]
+    # max_ore_robots = 4 + 2 + 3 + 2
+    # max_clay_robots = 14
+    # max_obsidian_robots = 7
+    max_robots = {
+        "ore": 4, "clay": 14, "obsidian": 7, "geode": 100
+    }
+    max_robots[OPTIMISED_ROBOT] = 100
 
     # owned_rocks = init_rocks
     # owned_robots = init_robots
@@ -82,20 +133,45 @@ def dfs():
         # print("robots", owned_robots)
         # print("rocks", owned_rocks)
         # print("time", time_remaining)
-        max_number_geodes_if_this_state_until_end = max(owned_rocks["geode"] + owned_robots["geode"] * time_remaining,
-                                                        max_number_geodes_if_this_state_until_end)
+        max_number_geodes_if_this_state_until_end = max(
+            owned_rocks[OPTIMISED_ROBOT] + owned_robots[OPTIMISED_ROBOT] * time_remaining,
+            max_number_geodes_if_this_state_until_end)
         # print("max_number_clays_if_this_state_until_end", owned_rocks["clay"] + owned_robots["clay"] * time_remaining)
 
         potential = compute_potential(owned_robots, owned_rocks, time_remaining)
-        if potential < max_number_geodes_if_this_state_until_end:
+        if potential <= max_number_geodes_if_this_state_until_end:
             continue
 
         if time_remaining - 1 >= 0:
             can_buy = False
 
-            for robot, robot_costs in blueprint.items():
+            # NE FONCTIONNE PAS
+            # useful_robots = compute_useful_robots(owned_robots, owned_rocks, time_remaining, blueprint)
+            # print(useful_robots)
+
+            possible_robots = compute_possible_robots(owned_rocks, blueprint)
+            for robot in possible_robots:
+                robot_costs = blueprint[robot]
+
+                # for robot, robot_costs in blueprint.items():
+                # for robot in useful_robots:
+                #     robot_costs = blueprint[robot]
                 # print("ROBOT", robot, can_buy_robot(robot_costs, owned_rocks))
                 # You can buy an additional robot
+                if is_not_useful_anymore(robot, owned_robots, owned_rocks, time_remaining, blueprint):
+                    continue
+                # Cut if more robots than needed
+                if owned_robots[robot] + 1 > max_robots[robot]:
+                    continue
+                # if robot == "ore" and owned_robots[robot] + 1 >= max_ore_robots:
+                #     # print("PRUNE ore")
+                #     continue
+                # if robot == "clay" and owned_robots[robot] + 1 >= max_clay_robots:
+                #     # print("PRUNE clay")
+                #     continue
+                # if robot == "obsidian" and owned_robots[robot] + 1 >= max_obsidian_robots:
+                #     # print("PRUNE obsidian")
+                #     continue
                 if can_buy_robot(robot_costs, owned_rocks):
                     # You choose to buy it
                     can_buy = True
@@ -119,6 +195,9 @@ def dfs():
                 for robot, nb_robot in owned_robots.items():
                     new_rocks[robot] += nb_robot * 1
                 queue.append((owned_robots, new_rocks, time_remaining - 1))
+
+    print("for init_time_remaining", init_time_remaining, "rock optimised", OPTIMISED_ROBOT, "-- TOTAL NB IT:",
+          number_it)
 
     return max_number_geodes_if_this_state_until_end
 
