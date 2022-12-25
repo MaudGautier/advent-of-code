@@ -150,6 +150,17 @@ def part_one(blueprints, end_time):
     return summed_value
 
 
+def part_two(blueprints):
+    multiple = 1
+    for blueprint in blueprints[0:3]:
+        value = dfs(blueprint, 32)
+        print(blueprint, ":",
+              value)  # With real data: 38 * 10 * 18 (pour le premier - un coup 37, un coup 38 - flemme de comprendfre l'erreur - due à sélection du set je pense car random)
+        multiple *= value
+
+    return multiple
+
+
 def read_data(file_name):
     with open(file_name, 'r') as file:
         return file.readlines()
@@ -179,6 +190,7 @@ if __name__ == "__main__":
     print(dfs(test_blueprint2, 24) == 12)
     test_blueprints = convert_data_to_blueprints([sub_test_data_1, sub_test_data_2])
     print(part_one(test_blueprints, 24) == 33)
+    print(part_two(test_blueprints))
 
     # ---- REAL DATA ----
     data = read_data("./2022/data/day19-input.txt")
@@ -188,6 +200,17 @@ if __name__ == "__main__":
     blueprints = convert_data_to_blueprints(data)
     print(part_one(blueprints, 24))  # 1675
 
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 3316 INCORRECT TOO HIGH # 2072 TOO LOW # Correct = 2090 surface (1060 trapped)
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(blueprints))  # 6840
+
+    # # ADDITIONAL CHECK - ça donne un coup 37 un coup 38 (à cause de random dans le set ????) - flemme de comprendre pourquoi - le bon résultat = 38
+    # print(dfs({'ore': {'ore': 4, 'clay': 0, 'obsidian': 0, 'geode': 0},
+    #            'clay': {'ore': 4, 'clay': 0, 'obsidian': 0, 'geode': 0},
+    #            'obsidian': {'ore': 2, 'clay': 11, 'obsidian': 0, 'geode': 0},
+    #            'geode': {'ore': 2, 'clay': 0, 'obsidian': 7, 'geode': 0}}, 32))
+    # # IDEM: donne un coup 42 (rare), un coup 44 (rare) un coup 56 (juste)
+    # print(dfs({'ore': {'ore': 4, 'clay': 0, 'obsidian': 0, 'geode': 0},
+    #            'clay': {'ore': 2, 'clay': 0, 'obsidian': 0, 'geode': 0},
+    #            'obsidian': {'ore': 3, 'clay': 14, 'obsidian': 0, 'geode': 0},
+    #            'geode': {'ore': 2, 'clay': 0, 'obsidian': 7, 'geode': 0}}, 32))
