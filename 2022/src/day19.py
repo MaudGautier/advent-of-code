@@ -118,8 +118,7 @@ def dfs(blueprint, end_time):
                     new_materials = harvest(robots, new_materials)
                     queue.append((new_robots.copy(), new_materials.copy(), time + 1, set()))
 
-    print("Total number of iterations", nb_iterations)
-    print(best_at_time)
+    # print("Total number of iterations", nb_iterations, best_at_time)
     return best_at_time[end_time]
 
 
@@ -145,10 +144,8 @@ def part_one(blueprints, end_time):
     id = 0
     summed_value = 0
     for blueprint in blueprints:
-        print("\nNEW BLUEPRINT", blueprint)
         id += 1
         value = dfs(blueprint, end_time)
-        print("blueprint", id, ":", value)
         summed_value += value * (id)
     return summed_value
 
@@ -189,7 +186,6 @@ if __name__ == "__main__":
     # Solution for part A
     print("\n-- Solution for part A:")
     blueprints = convert_data_to_blueprints(data)
-    print(blueprints)
     print(part_one(blueprints, 24))  # 1675
 
     # # Solution for part B
