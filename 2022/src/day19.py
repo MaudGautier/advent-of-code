@@ -7,12 +7,9 @@ def build_options(blueprint, owned_materials):
     options = {None}
     for robot in [ORE, CLAY, OBSIDIAN, GEODE]:
         costs = blueprint[robot]
-        # for material, quantity_needed in costs.item():
-        #     quantity_available = owned_materials[material]
-        #     if quantity_needed <= quantity_available
         if all(quantity_needed <= owned_materials[material] for material, quantity_needed in costs.items()):
             options.add(robot)
-    # OPTIMISATION: if Geode can be built => build only this one
+    # OPTIMISATION #2: if Geode can be built => build only this one
     if GEODE in options:
         return {GEODE}
 
@@ -89,30 +86,31 @@ def dfs(blueprint, end_time):
         if nb_iterations % 100000 == 0:
             print("\n---- at iteration", nb_iterations, "(time:", time, "):", len(queue), "Best at time",
                   best_at_time)
-        # print("\n---- at iteration", nb_iterations, ":", len(queue), queue)
         robots, materials, time, skipped_at_last_iteration = queue.pop(0)
+        # print("\n---- at iteration", nb_iterations, ":", len(queue) + 1)
         # print("robots", robots)
         # print("materials", materials)
 
+        # OPTIMISATION #5: if potential is smaller than what would happen with no change => do not compute
         remaining_time = end_time - time
-
         potential = compute_potential(robots, materials, remaining_time)
         if potential < max_nb_geodes_if_this_state_until_end:
             continue
         max_nb_geodes_if_this_state_until_end = max(materials[GEODE] + remaining_time * robots[GEODE],
                                                     max_nb_geodes_if_this_state_until_end)
 
-        # best_so_far = max(best_so_far, materials[GEODE] + robots[GEODE] * ())
+        # OPTIMISATION #3: Run only for the ones which are already the biggest number of geodes
         best_at_time[time] = max(best_at_time[time], materials[GEODE])
-
         if time < end_time and materials[GEODE] == best_at_time[time]:
             new_robot_options = build_options(blueprint, materials)
             for robot_to_build in new_robot_options:
                 if robot_to_build is None:
                     new_materials = harvest(robots, materials)
                     queue.append((robots.copy(), new_materials, time + 1, new_robot_options - {None}))
+                # OPTIMISATION #1: Do not build more than max useful robots of each kind
                 elif robots[robot_to_build] + 1 > max_robots[robot_to_build]:
                     continue
+                # OPTIMISATION #4: Do not build a robot that was skipped at last iteration
                 elif robot_to_build in skipped_at_last_iteration:
                     continue
                 else:
@@ -123,8 +121,6 @@ def dfs(blueprint, end_time):
     print("Total number of iterations", nb_iterations)
     print(best_at_time)
     return best_at_time[end_time]
-
-    # return best_so_far
 
 
 if __name__ == "__main__":
