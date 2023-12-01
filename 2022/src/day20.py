@@ -46,9 +46,13 @@ def part_one(sequence):
         # print("\nDealing with", current_value, "at index", current_index, "in current_sequence", sequence)
         new_sequence = sequence[:current_index] + sequence[current_index + 1:]
         # print("with value cut", new_sequence)
-        new_index = (current_index + current_value) % (len(sequence) - 1)  ## ???
-        if new_index == 0:
-            new_index = len(sequence) - 1
+        new_index = (current_index + current_value)  # % (len(sequence))  ## ???
+        if new_index <= 0:
+            new_index = new_index + len(sequence) - 1
+        if new_index > len(sequence):
+            new_index = new_index - (len(sequence) - 1)
+        # if new_index == 0:
+        #     new_index = len(sequence) - 1
         new_new_sequence = new_sequence[: new_index] + [current_value] + new_sequence[new_index:]
         # print("NEW SEQ", new_new_sequence, "with", current_value, "at new index", new_index)
         sequence = new_new_sequence
@@ -202,10 +206,10 @@ if __name__ == "__main__":
     print("-- Tests on test data:")
     print(part_one(test_data) == 3)
 
-    # # ---- REAL DATA ----
-    # data = read_data("./2022/data/day20-input.txt")
+    # ---- REAL DATA ----
+    data = read_data("./2022/data/day20-input.txt")
     # print(data)
     #
-    # # Solution for part A
-    # print("\n-- Solution for part A:")
-    # print(part_one(data))  # -4651 INCORRECT
+    # Solution for part A
+    print("\n-- Solution for part A:")
+    print(part_one(data))  # -4651 INCORRECT # 1 INCORRECT # 3473 TOO LOW but correct for someone else
