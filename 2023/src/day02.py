@@ -43,6 +43,17 @@ def part_one(data: list[str], nb_red, nb_green, nb_blue):
     return total
 
 
+def part_two(data: list[str]):
+    total = 0
+    for game in data:
+        _, max_balls = parse_game(game)
+        mult = 1
+        for ball_count in max_balls.values():
+            mult *= ball_count
+        total += mult
+    return total
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data = [
@@ -54,6 +65,7 @@ if __name__ == "__main__":
     ]
     print("-- Tests on test data:")
     print(part_one(data=test_data, nb_red=12, nb_green=13, nb_blue=14) == 8)
+    print(part_two(data=test_data) == 2286)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day02-input.txt")
@@ -61,3 +73,7 @@ if __name__ == "__main__":
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data=data, nb_red=12, nb_green=13, nb_blue=14))  # 2085
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data=data))  # 79315
