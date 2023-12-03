@@ -68,6 +68,38 @@ def part_one(data: list[str]):
     return total
 
 
+def find_gear_parts(position, numbers, data):
+    seen = set()
+    gear_parts = []
+    neighbors = get_neighbors(position)
+    for neighbor in neighbors:
+        if data[neighbor[0]][neighbor[1]].isdigit():
+            if (neighbor[0], neighbor[1]) in seen:
+                continue
+            number, cols = numbers[(neighbor[0], neighbor[1])]
+            gear_parts.append(number)
+            for col in range(cols[0], cols[1]):
+                seen.add((neighbor[0], col))
+
+    return gear_parts
+
+
+def multiply_gears(symbols, numbers, data):
+    total = 0
+    for position in symbols["*"]:
+        gear_parts = find_gear_parts(position, numbers, data)
+        if len(gear_parts) == 2:
+            gear_ratio = gear_parts[0] * gear_parts[1]
+            total += gear_ratio
+
+    return total
+
+
+def part_two(data: list[str]):
+    numbers, symbols = get_numbers_and_symbols(data)
+    return multiply_gears(symbols, numbers, data)
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data = [
@@ -84,6 +116,7 @@ if __name__ == "__main__":
     ]
     print("-- Tests on test data:")
     print(part_one(test_data) == 4361)
+    print(part_two(test_data) == 467835)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day03-input.txt")
@@ -91,7 +124,7 @@ if __name__ == "__main__":
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data))  # 529618
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data=data))  # 79315
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 77509019
