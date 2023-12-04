@@ -24,6 +24,20 @@ def part_one(data: list[str]) -> int:
     return total
 
 
+def part_two(data: list[str]) -> int:
+    nb_copies = [1] * len(data)
+    for i, card in enumerate(data):
+        winning_numbers, numbers_in_hand = parse_card(card)
+        common_numbers = winning_numbers.intersection(numbers_in_hand)
+        for j in range(len(common_numbers)):
+            copy_idx = i + 1 + j
+            if copy_idx >= len(data):
+                break
+            nb_copies[copy_idx] += nb_copies[i]
+
+    return sum(nb_copies)
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data = [
@@ -36,7 +50,7 @@ if __name__ == "__main__":
     ]
     print("-- Tests on test data:")
     print(part_one(test_data) == 13)
-    # print(part_two(test_data) == 467835)
+    print(part_two(test_data) == 30)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day04-input.txt")
@@ -45,6 +59,6 @@ if __name__ == "__main__":
     print("\n-- Solution for part A:")
     print(part_one(data))  # 25183
 
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 77509019
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 5667240
