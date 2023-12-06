@@ -27,7 +27,6 @@ def compute_number_ways_to_win(race: tuple[int, int]) -> int:
     return maxi - mini + 1
 
 
-
 def part_one(data: tuple[str, str]) -> int:
     races = parse_races(data)
     total = 1
@@ -35,6 +34,12 @@ def part_one(data: tuple[str, str]) -> int:
         nb_ways = compute_number_ways_to_win(race)
         total *= nb_ways
     return total
+
+
+def part_two(data: tuple[str, str]) -> int:
+    time = int(data[0].split(":")[1].replace(" ", ""))
+    distance = int(data[1].split(":")[1].replace(" ", ""))
+    return compute_number_ways_to_win((time, distance))
 
 
 if __name__ == "__main__":
@@ -45,16 +50,15 @@ if __name__ == "__main__":
     )
     print("-- Tests on test data:")
     print(part_one(test_data) == 288)
-    # print(part_two(test_data) == 30)
+    print(part_two(test_data) == 71503)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day06-input.txt")
-    print(data)
 
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data))  # 1413720
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 5667240
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 30565288
