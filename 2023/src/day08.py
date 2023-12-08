@@ -40,7 +40,6 @@ def parse_data(data: list[str]):
     return instruction, nodes
 
 
-
 def part_one(data: list[str]) -> int:
     instructions, nodes = parse_data(data)
 
@@ -59,6 +58,75 @@ def part_one(data: list[str]) -> int:
             i = 0
 
     return steps
+
+
+def ends_with(value: str, letter: str) -> bool:
+    return value[-1] == letter
+
+
+def part_two_NON_OPTIM(data: list[str]) -> int:
+    instructions, nodes = parse_data(data)
+
+    current_nodes = [nodes[node] for node in nodes if ends_with(node, "A")]
+    nb_nodes = len(current_nodes)
+    i, steps = 0, 0
+    while not len([node for node in current_nodes if ends_with(node.value, "Z")]) == nb_nodes:
+        steps += 1
+        instruction = instructions[i]
+        for node_i in range(len(current_nodes)):
+            node = current_nodes[node_i]
+            if instruction == "L":
+                current_nodes[node_i] = node.left
+            elif instruction == "R":
+                current_nodes[node_i] = node.right
+
+        i += 1
+        if i >= len(instructions):
+            i = 0
+
+    return steps
+
+
+def count_steps(node, instructions):
+    i = 0
+    steps = 0
+    while not ends_with(node.value, "Z"):
+        steps += 1
+        instruction = instructions[i]
+        if instruction == "L":
+            node = node.left
+        elif instruction == "R":
+            node = node.right
+        i += 1
+        if i >= len(instructions):
+            i = 0
+
+    return steps
+
+
+def gcd(n, m):
+    if m == 0:
+        return n
+    return gcd(m, n % m)
+
+
+def compute_lcm(a: list[int]):
+    lcm = 1
+    for i in a:
+        lcm = lcm * i // gcd(lcm, i)
+    return lcm
+
+
+def part_two(data: list[str]) -> int:
+    instructions, nodes = parse_data(data)
+
+    current_nodes = [nodes[node] for node in nodes if ends_with(node, "A")]
+    steps = []
+    for node in current_nodes:
+        steps.append(count_steps(node, instructions))
+
+    print(steps)
+    return compute_lcm(steps)
 
 
 if __name__ == "__main__":
@@ -81,10 +149,22 @@ if __name__ == "__main__":
         "BBB = (AAA, ZZZ)",
         "ZZZ = (ZZZ, ZZZ)"
     ]
+    test_data_3 = [
+        "LR",
+        "",
+        "11A = (11B, XXX)",
+        "11B = (XXX, 11Z)",
+        "11Z = (11B, XXX)",
+        "22A = (22B, XXX)",
+        "22B = (22C, 22C)",
+        "22C = (22Z, 22Z)",
+        "22Z = (22B, 22B)",
+        "XXX = (XXX, XXX)"
+    ]
     print("-- Tests on test data:")
     print(part_one(test_data_1) == 2)
     print(part_one(test_data_2) == 6)
-    # print(part_two(test_data) == 5905)
+    print(part_two(test_data_3) == 6)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day08-input.txt")
@@ -92,7 +172,7 @@ if __name__ == "__main__":
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data))  # 19951
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 252137472
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 16342438708751
