@@ -11,6 +11,14 @@ def parse_sequences(data: list[str]):
     return sequences
 
 
+def parse_sequences_reversed(data: list[str]):
+    sequences = []
+    for line in data:
+        sequences.append(list(reversed([int(number) for number in line.split(" ")])))
+
+    return sequences
+
+
 def compute_history_sequence(sequence: list[int]) -> list[int]:
     history = []
     for i in range(len(sequence) - 1):
@@ -42,6 +50,17 @@ def part_one(data: list[str]):
     return total
 
 
+def part_two(data: list[str]):
+    sequences = parse_sequences_reversed(data)
+    # print(sequences)
+    total = 0
+    for sequence in sequences:
+        next_val = get_next_val(sequence)
+        total += next_val
+
+    return total
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data = [
@@ -51,7 +70,7 @@ if __name__ == "__main__":
     ]
     print("-- Tests on test data:")
     print(part_one(test_data) == 114)
-    # print(part_two(test_data) == 6)
+    print(part_two(test_data) == 2)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day09-input.txt")
@@ -59,7 +78,7 @@ if __name__ == "__main__":
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data))  # 1762065988
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 16342438708751
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 1066
