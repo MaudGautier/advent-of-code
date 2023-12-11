@@ -53,7 +53,17 @@ def find_neighbors(universe: list[str], position: tuple[int, int]) -> list[tuple
     return neighbors
 
 
-def bfs(universe: list[str], start: tuple[int, int], galaxies: list[tuple[int, int]]) -> int:
+def compute_depth(neighbor, depth, rows_without_galaxies, cols_without_galaxies, expansion):
+    if neighbor[0] in rows_without_galaxies:
+        return depth + expansion
+    if neighbor[1] in cols_without_galaxies:
+        return depth + expansion
+
+    return depth + 1
+
+
+def bfs2(universe: list[str], start: tuple[int, int], galaxies: list[tuple[int, int]], rows_without_galaxies: set[int],
+         cols_without_galaxies: set[int], expansion: int) -> int:
     visited = set()
     to_visit = deque()  # queue
     to_visit.append((start, 0))
@@ -68,14 +78,16 @@ def bfs(universe: list[str], start: tuple[int, int], galaxies: list[tuple[int, i
             count += 1
             total += depth
         for neighbor in find_neighbors(universe, position):
-            to_visit.append((neighbor, depth + 1))
+            new_depth = compute_depth(neighbor, depth, rows_without_galaxies, cols_without_galaxies, expansion)
+            to_visit.append((neighbor, new_depth))
 
     return total
 
 
-def part_one(universe: list[str]) -> int:
-    expanded_universe = expand_universe(universe)
-    galaxies = find_galaxies(expanded_universe)
+def part_one_and_two(universe: list[str], expansion: int = 2) -> int:
+    rows_without_galaxies, cols_without_galaxies = find_rows_and_cols_without_galaxies(universe)
+
+    galaxies = find_galaxies(universe)
     total = 0
     # print("TOTAL GALAXIES", len(galaxies))
     count = 0
@@ -90,7 +102,8 @@ def part_one(universe: list[str]) -> int:
             print('Finished processing {} % of all galaxies'.format(int(finished)))
 
         # Logic
-        paths_lengths = bfs(expanded_universe, galaxy, galaxies)
+        paths_lengths = bfs2(universe, galaxy, galaxies, set(rows_without_galaxies), set(cols_without_galaxies),
+                             expansion)
         total += paths_lengths
 
     return total // 2
@@ -111,16 +124,18 @@ if __name__ == "__main__":
         "#...#....."
     ]
     print("-- Tests on test data:")
-    print(part_one(test_data) == 374)
-    # print(part_two(test_data) == 4)
+    print(part_one_and_two(test_data) == 374)
+    print(part_one_and_two(test_data, 2) == 374)
+    print(part_one_and_two(test_data, 10) == 1030)
+    print(part_one_and_two(test_data, 100) == 8410)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day11-input.txt")
 
     # Solution for part A
     print("\n-- Solution for part A:")
-    print(part_one(data))  # 9563821 # NOT OPTIMAL IN TIME ~ 1-2 mins to run
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 317
+    print(part_one_and_two(data))  # 9563821 # NOT OPTIMAL IN TIME ~ 1-2 mins to run
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_one_and_two(data, 1000000))  # 827009909817 # STILL NOT OPTIMAL IN TIME ~ 1-2 mins to run
