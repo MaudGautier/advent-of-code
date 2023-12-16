@@ -85,11 +85,10 @@ def compute_new_beams(input_position: Position, direction: Direction, grid: Grid
     raise ValueError("Case not handled in compute_new_beams")
 
 
-def energize(grid: Grid) -> Grid:
+def energize(grid: Grid, start: Beam = ((0, -1), "rightward")) -> Grid:
     energized_grid = [['.' for _ in line] for line in grid]
 
     beams = deque()  # queue
-    start = ((0, -1), "rightward")
     beams.append(start)
     visited = set()
     while len(beams) > 0:
@@ -121,9 +120,32 @@ def count_energized(grid: Grid) -> int:
 def part_one(data: str) -> int:
     grid = parse_grid(data)
     energized_grid = energize(grid)
-    for line in energized_grid:
-        print("".join(line))
+    # for line in energized_grid:
+    #     print("".join(line))
     return count_energized(energized_grid)
+
+
+def define_all_starts(grid: Grid):
+    starts = []
+    for i in range(len(grid)):
+        starts.append(((i, -1), "rightward"))
+        starts.append(((i, len(grid)), "leftward"))
+    for j in range(len(grid[0])):
+        starts.append(((-1, j), "downward"))
+        starts.append(((len(grid[0]), j), "upward"))
+    return starts
+
+
+def part_two(data: str) -> int:
+    grid = parse_grid(data)
+    starts = define_all_starts(grid)
+    
+    max_energy = 0
+    for start in starts:
+        energized_grid = energize(grid, start)
+        energy = count_energized(energized_grid)
+        max_energy = max(max_energy, energy)
+    return max_energy
 
 
 if __name__ == "__main__":
@@ -151,7 +173,7 @@ if __name__ == "__main__":
     print("-- Tests on test data:")
     print(part_one(test_data) == 46)
     print(part_one(test_data_2) == 10)
-    # print(part_two(test_data) == 145)
+    print(part_two(test_data) == 51)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day16-input.txt")
@@ -159,7 +181,8 @@ if __name__ == "__main__":
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data))  # 6605
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 244461
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 6766
+    # NB: about 2 seconds to execute
