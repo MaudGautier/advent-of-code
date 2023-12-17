@@ -1,6 +1,3 @@
-from functools import cache
-
-
 def read_data(file_name):
     with open(file_name, 'r') as file:
         return [line.strip() for line in file.readlines()]
@@ -74,8 +71,11 @@ def part_one(data: list[str]) -> int:
 
 
 # Dynamic programming - recursion
-@cache
+MEMO = {}
 def count_nb_valid_arrangements(springs: str, expected_counts: tuple[int]) -> int:
+    if (springs, expected_counts) in MEMO:
+        return MEMO[(springs, expected_counts)]
+
     # Base case - if no more groups => springs must contain no "#"
     if len(expected_counts) == 0:
         return "#" not in springs
@@ -87,7 +87,9 @@ def count_nb_valid_arrangements(springs: str, expected_counts: tuple[int]) -> in
     spring, rest_springs = springs[0], springs[1:]
 
     if spring == ".":
-        return count_nb_valid_arrangements(rest_springs, expected_counts)
+        result = count_nb_valid_arrangements(rest_springs, expected_counts)
+        MEMO[(springs, expected_counts)] = result
+        return result
 
     if spring == "#":
         expected_count = expected_counts[0]
@@ -100,14 +102,19 @@ def count_nb_valid_arrangements(springs: str, expected_counts: tuple[int]) -> in
                 # Or spring is finished
                 and (len(springs) == expected_count or springs[expected_count] in [".", "?"])
         ):
-            return count_nb_valid_arrangements(springs[expected_count + 1:], expected_counts[1:])
+            result = count_nb_valid_arrangements(springs[expected_count + 1:], expected_counts[1:])
+            MEMO[(springs, expected_counts)] = result
+            return result
+        MEMO[(springs, expected_counts)] = 0
         return 0
 
     if spring == "?":
-        return (
+        result = (
                 count_nb_valid_arrangements(f".{rest_springs}", expected_counts)  # Case 1: replaced by "."
                 + count_nb_valid_arrangements(f"#{rest_springs}", expected_counts)  # Case 2: replaced by "#"
         )
+        MEMO[(springs, expected_counts)] = result
+        return result
 
     raise ValueError("SHOULD NOT GET HERE")
 
@@ -115,7 +122,6 @@ def count_nb_valid_arrangements(springs: str, expected_counts: tuple[int]) -> in
 def part_two(data: list[str]) -> int:
     total = 0
     for i, line in enumerate(data):
-        print(i, "/", len(data))
         springs, counts = parse_line_part_two(line, 4)
         counted = count_nb_valid_arrangements(springs, counts)
         total += counted
