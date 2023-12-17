@@ -6,7 +6,7 @@ def read_data(file_name):
 def parse_line(line: str):
     springs = line.split(" ")[0]
     counts = [int(i) for i in line.split(" ")[1].split(",")]
-    return springs, counts
+    return springs, tuple(counts)
 
 
 def parse_line_part_two(line: str, expansion: int = 0):
@@ -17,61 +17,18 @@ def parse_line_part_two(line: str, expansion: int = 0):
     return unfolded_springs, tuple(unfolded_counts)
 
 
-def get_counts(arrangement: str):
-    counts = []
-    current_count = 0
-    for i in arrangement:
-        if i == "#":
-            current_count += 1
-            continue
-        if i == ".":
-            counts.append(current_count)
-            current_count = 0
-            continue
-    if len(arrangement) and arrangement[-1] == "#":
-        counts.append(current_count)
-    return [count for count in counts if count != 0]
-
-
-def backtrack(springs: str, expected_counts: list[int], arrangement: str, arrangements: set[str] = ""):
-    actual_counts = get_counts(arrangement)[:-1]
-    if actual_counts != expected_counts[:len(actual_counts)]:
-        return
-
-    if len(arrangement) == len(springs):
-        actual_counts = get_counts(arrangement)
-        if actual_counts != expected_counts:
-            return
-        arrangements.add(arrangement)
-        return
-
-    # Iterate all possible solutions
-    i = len(arrangement)
-    if springs[i] == "#" or springs[i] == ".":
-        backtrack(springs, expected_counts, arrangement + springs[i], arrangements)
-    else:
-        # Try "#"
-        backtrack(springs, expected_counts, arrangement + "#", arrangements)
-        # Try "."
-        backtrack(springs, expected_counts, arrangement + ".", arrangements)
-
-
-def count_arrangements(springs: str, expected_counts: list[int]) -> int:
-    arrangements = set()
-    backtrack(springs, expected_counts, arrangement="", arrangements=arrangements)
-    return len(arrangements)
-
-
 def part_one(data: list[str]) -> int:
     total = 0
     for line in data:
         springs, counts = parse_line(line)
-        total += count_arrangements(springs, counts)
+        total += count_nb_valid_arrangements(springs, counts)
     return total
 
 
-# Dynamic programming - recursion
 MEMO = {}
+
+
+# Dynamic programming - recursion
 def count_nb_valid_arrangements(springs: str, expected_counts: tuple[int]) -> int:
     if (springs, expected_counts) in MEMO:
         return MEMO[(springs, expected_counts)]
@@ -131,15 +88,6 @@ def part_two(data: list[str]) -> int:
 
 if __name__ == "__main__":
     # ---- TEST DATA -----
-    # SOME TESTS
-    print(get_counts("###") == [3])
-    print(get_counts("...") == [])
-    print(get_counts(".#.") == [1])
-    print(get_counts("##.") == [2])
-    print(get_counts("#.#") == [1, 1])
-    print(get_counts("#.#...") == [1, 1])
-    print(get_counts("#.#.....###") == [1, 1, 3])
-
     test_data = [
         "???.### 1,1,3",
         ".??..??...?##. 1,1,3",
