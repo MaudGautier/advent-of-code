@@ -22,6 +22,24 @@ def parse_instructions(data: list[str]) -> list[Instruction]:
     return instructions
 
 
+DIRECTION = {
+    "0": "R",
+    "1": "D",
+    "2": "L",
+    "3": "U",
+}
+
+
+def parse_instructions_part_two(data: list[str]) -> list[Instruction]:
+    instructions = []
+    for line in data:
+        _, _, color = line.split(" ")
+        depth = int(color[2:7], 16)
+        direction = DIRECTION[color[7]]
+        instructions.append((direction, int(depth), color))
+    return instructions
+
+
 DELTAS = {
     "R": (0, 1),
     "L": (0, -1),
@@ -85,7 +103,7 @@ def get_interior(lagoon: Lagoon) -> set[Position]:
         current = to_visit.popleft()
         if current in visited:
             continue
-        visited.add(current)  # TODO: add min_x, min_y if we want to get all real positions ?
+        visited.add(current)
         for neighbor in get_neighbors(current, lagoon):
             if lagoon[neighbor[0]][neighbor[1]] == "#":
                 continue
@@ -100,6 +118,34 @@ def part_one(data: list[str]) -> int:
     # print_lagoon(lagoon)
     interior = get_interior(lagoon)
     return len(interior) + len(trench)
+
+
+def shoelace_algorithm(instructions: list[Instruction]) -> int:
+    # Get coordinates of edges
+    coordinates = []
+    coord = (0, 0)
+    for direction, depth, _ in instructions:
+        delta = DELTAS[direction]
+        coord = (coord[0] + delta[0] * depth, coord[1] + delta[1] * depth)
+        coordinates.append(coord)
+
+    # Get total length of perimeter
+    perimeter = 0
+    for direction, depth, _ in instructions:
+        perimeter += depth
+
+    # Compute shoelace
+    total = 0
+    for c1, c2 in zip(coordinates, coordinates[1:] + [coordinates[0]]):
+        total += (c1[1] + c2[1]) * (c2[0] - c1[0])
+
+    return (abs(total) + perimeter) // 2 + 1
+
+
+def part_two(data: list[str]) -> int:
+    instructions = parse_instructions_part_two(data)
+    result = shoelace_algorithm(instructions)
+    return result
 
 
 if __name__ == "__main__":
@@ -122,7 +168,7 @@ if __name__ == "__main__":
     ]
     print("-- Tests on test data:")
     print(part_one(test_data) == 62)
-    # print(part_two(test_data) == 51)
+    print(part_two(test_data) == 952408144115)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day18-input.txt")
@@ -130,7 +176,7 @@ if __name__ == "__main__":
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data))  # 36807
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 6766
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 48797603984357
