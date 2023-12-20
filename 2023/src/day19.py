@@ -1,3 +1,7 @@
+from collections import deque
+from math import prod
+
+
 def read_data(file_name):
     with open(file_name, 'r') as file:
         return file.read().strip()
@@ -15,7 +19,7 @@ Part = dict[str, int]
 
 
 def create_condition(raw_condition: RawCondition) -> Condition:
-    return (raw_condition[0], raw_condition[1], int(raw_condition[2:]))
+    return raw_condition[0], raw_condition[1], int(raw_condition[2:])
 
 
 def parse_data(data: str) -> tuple[Workflows, list[Part]]:
@@ -68,6 +72,68 @@ def part_one(data: str) -> int:
     return total
 
 
+def part_two(data: str) -> int:
+    workflows, _ = parse_data(data)
+    total = 0
+
+    range_queues = deque()
+    range_queues.append({
+        "name": "in",
+        "x": (1, 4000),
+        "m": (1, 4000),
+        "a": (1, 4000),
+        "s": (1, 4000),
+    })
+
+    while len(range_queues) > 0:
+        current = range_queues.popleft()
+        # print("CURRENT", current)
+
+        # Base case
+        if current["name"] == "A":
+            total += prod([current[letter][1] - current[letter][0] + 1 for letter in "xmas"])
+            continue
+
+        # Base case
+        if current["name"] == "R":
+            continue
+
+        # Recurse
+        workflow_name = current["name"]
+        workflow = workflows[workflow_name]
+        # print(workflow_name, workflow)
+        for condition, action in workflow[0]:
+            letter, operator, value = condition
+            new_in_queue = {
+                "name": action,
+                "x": current["x"],
+                "m": current["m"],
+                "a": current["a"],
+                "s": current["s"],
+            }
+            if operator == ">":
+                new_in_queue[letter] = (value + 1, current[letter][1])
+                current[letter] = (current[letter][0], value)
+                range_queues.append(new_in_queue)
+
+            elif operator == "<":
+                new_in_queue[letter] = (current[letter][0], value - 1)
+                current[letter] = (value, current[letter][1])
+                range_queues.append(new_in_queue)
+
+        default_action = workflow[1]
+        new_in_queue = {
+            "name": default_action,
+            "x": current["x"],
+            "m": current["m"],
+            "a": current["a"],
+            "s": current["s"],
+        }
+        range_queues.append(new_in_queue)
+
+    return total
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data = r"""px{a<2006:qkq,m>2090:A,rfg}
@@ -89,7 +155,7 @@ hdj{m>838:A,pv}
 {x=2127,m=1623,a=2188,s=1013}"""
     print("-- Tests on test data:")
     print(part_one(test_data) == 19114)
-    # print(part_two(test_data) == 51)
+    print(part_two(test_data) == 167409079868000)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day19-input.txt")
@@ -97,7 +163,7 @@ hdj{m>838:A,pv}
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data))  # 480738
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 6766
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 131550418841958
