@@ -1,4 +1,6 @@
 from collections import deque
+from math import lcm
+from typing import Optional
 
 
 def read_data(file_name):
@@ -40,7 +42,7 @@ def reset(modules: Modules) -> tuple[Flipflops, Conjunctions]:
     return flipflops, conjunctions
 
 
-def run(modules: Modules, flipflops: Flipflops, conjunctions: Conjunctions):
+def run(modules: Modules, flipflops: Flipflops, conjunctions: Conjunctions, receives_low_pulse: Optional[str] = None):
     high_pulses = 0
     low_pulses = 0
     queue = deque()
@@ -48,6 +50,10 @@ def run(modules: Modules, flipflops: Flipflops, conjunctions: Conjunctions):
     while len(queue) > 0:
         current_module, pulse, previous_emitter = queue.popleft()
         kind, receivers = modules[current_module]
+
+        # NB: This works only because all 4 modules prior to -> jq -> rx have only 1 single origin
+        if receives_low_pulse and current_module == receives_low_pulse and not pulse:
+            return True
 
         # Debug
         # print(previous_emitter, "-", "high" if pulse else "low", "->", current_module)
@@ -90,10 +96,7 @@ def run(modules: Modules, flipflops: Flipflops, conjunctions: Conjunctions):
 
 def part_one(data: str) -> int:
     modules = parse_data(data)
-    # print(modules)
     flipflops, conjunctions = reset(modules)
-    # print("flipflops", flipflops)
-    # print("conjunctions", conjunctions)
     # high, low = run(modules, flipflops, conjunctions)
     # print(high, low, "\n\n---")
     # high, low = run(modules, flipflops, conjunctions)
@@ -115,6 +118,43 @@ def part_one(data: str) -> int:
     return low_pulses * high_pulses
 
 
+def find_high_pulse_period(data: str, module_name: str):
+    modules = parse_data(data)
+    flipflops, conjunctions = reset(modules)
+    i = 0
+    while True:
+        i += 1
+        output = run(modules, flipflops, conjunctions, receives_low_pulse=module_name)
+        if output is True:
+            return i
+
+
+def find_emitters(modules: Modules, module_name: Module) -> list[Module]:
+    emitters = []
+    for emitter, raw_receivers in modules.items():
+        if module_name in raw_receivers[1]:
+            emitters.append(emitter)
+
+    return emitters
+
+
+def part_two(data: str) -> int:
+    modules = parse_data(data)
+    rx_emitter = find_emitters(modules, "rx")[0]
+    previous_emitters = find_emitters(modules, rx_emitter)
+
+    periods = []
+    for emitter in previous_emitters:
+        period = find_high_pulse_period(data, emitter)
+        periods.append(period)
+    # i = find_high_pulse_period(data, "vr")
+    # j = find_high_pulse_period(data, "nl")
+    # k = find_high_pulse_period(data, "gt")
+    # l = find_high_pulse_period(data, "lr")
+
+    return lcm(*periods)
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data_1 = r"""broadcaster -> a, b, c
@@ -130,7 +170,6 @@ if __name__ == "__main__":
     print("-- Tests on test data:")
     print(part_one(test_data_1) == 32000000)
     print(part_one(test_data_2) == 11687500)
-    # print(part_two(test_data) == 167409079868000)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day20-input.txt")
@@ -138,7 +177,7 @@ if __name__ == "__main__":
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data))  # 912199500
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 131550418841958
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 237878264003759
