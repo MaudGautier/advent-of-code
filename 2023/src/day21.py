@@ -20,11 +20,6 @@ def parse_data(data: str) -> Grid:
     return grid
 
 
-def display_grid(grid: Grid) -> None:
-    for line in grid:
-        print("".join(line))
-
-
 def find_start(grid: Grid) -> Position:
     for i, row in enumerate(grid):
         for j, cell in enumerate(row):
@@ -35,34 +30,25 @@ def find_start(grid: Grid) -> Position:
 
 
 def find_neighbors(grid: Grid, position: Position) -> list[Position]:
+    size = len(grid)
     offsets = [(0, 1), (0, -1), (-1, 0), (1, 0)]
     neighbors = []
     for offset in offsets:
         x = position[0] + offset[0]
         y = position[1] + offset[1]
-        if grid[x][y] == "#":
+        if grid[x % size][y % size] == "#":
             continue
         neighbors.append((x, y))
     return neighbors
 
 
-def update_grid(grid: Grid, to_remove: list[Position], to_add: set[Position]):
-    # Remove
-    for x, y in to_remove:
-        grid[x][y] = "."
-    # Add
-    for x, y in to_add:
-        grid[x][y] = "O"
-
-
-def walk(grid: Grid, nb_steps: int) -> None:
+def walk(grid: Grid, nb_steps: int) -> int:
     start = find_start(grid)
 
     queue = deque()
     queue.append([start])
 
     for step in range(nb_steps):
-        # print("\n--- STEP", step)
         currents = queue.popleft()
         all_neighbors = set()
         for current in currents:
@@ -70,28 +56,47 @@ def walk(grid: Grid, nb_steps: int) -> None:
             for neighbor in neighbors:
                 all_neighbors.add(neighbor)
 
-        update_grid(grid, currents, all_neighbors)
-        # display_grid(grid)
-
         queue.append(all_neighbors)
 
-
-def count_plots(grid: Grid) -> int:
-    nb_plots = 0
-    for row in grid:
-        for cell in row:
-            if cell == "O":
-                nb_plots += 1
-    return nb_plots
+    currents_last_step = queue.popleft()
+    return len(currents_last_step)
 
 
 def part_one(data: str, nb_steps: int) -> int:
     grid = parse_data(data)
-    # display_grid(grid)
 
-    walk(grid, nb_steps)
+    return walk(grid, nb_steps)
 
-    return count_plots(grid)
+
+def part_two(data: str, nb_steps: int) -> int:
+    grid = parse_data(data)
+    size = len(grid)
+    half_grid = size // 2
+
+    # Data points to get to half grid + 0, 1 or 2 grids
+    x_1 = 0  # half_grid
+    x_2 = 1  # half_grid + size
+    x_3 = 2  # half_grid + 2 * size
+    y_1 = walk(grid, half_grid)
+    y_2 = walk(grid, half_grid + size)
+    y_3 = walk(grid, half_grid + 2 * size)
+
+    # Get coefficients via Lagrange interpolation
+    # (https://stackoverflow.com/questions/16896577/using-points-to-generate-quadratic-equation-to-interpolate-data)
+    a = y_1 / ((x_1 - x_2) * (x_1 - x_3)) + y_2 / ((x_2 - x_1) * (x_2 - x_3)) + y_3 / ((x_3 - x_1) * (x_3 - x_2))
+
+    b = (-y_1 * (x_2 + x_3) / ((x_1 - x_2) * (x_1 - x_3))
+         - y_2 * (x_1 + x_3) / ((x_2 - x_1) * (x_2 - x_3))
+         - y_3 * (x_1 + x_2) / ((x_3 - x_1) * (x_3 - x_2)))
+
+    c = (y_1 * x_2 * x_3 / ((x_1 - x_2) * (x_1 - x_3))
+         + y_2 * x_1 * x_3 / ((x_2 - x_1) * (x_2 - x_3))
+         + y_3 * x_1 * x_2 / ((x_3 - x_1) * (x_3 - x_2)))
+
+    # Use coefficients to compute the result
+    m = (nb_steps - half_grid) // size
+    # m = 202300
+    return int(a * m * m + b * m + c)
 
 
 if __name__ == "__main__":
@@ -117,6 +122,12 @@ if __name__ == "__main__":
     print("\n-- Solution for part A:")
     print(part_one(data, 64))  # 3578
 
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 237878264003759
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data, 26501365))  # 594115391548176
+    # 26501365 = 2023 * 131 * 100 + 131//2 --> 100 grids + half grid * 2023
+    # Given that the row and column of cell S only contain "." (no rock) and that the grid is a square
+    # => it takes half_grid steps (131//2) to get to the next grid
+    # => the diamond area increases following a quadratic function.
+    # Solution = get 3 datapoints, then find coefficients of the quadratic function and apply it.
+    # See explanations at: https://www.reddit.com/r/adventofcode/comments/18nevo3/comment/keaiiq7/
