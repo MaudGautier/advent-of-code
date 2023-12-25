@@ -1,4 +1,5 @@
 from typing import Optional
+import sympy
 
 
 def read_data(file_name):
@@ -92,6 +93,39 @@ def part_one(data: str, boundaries: tuple[tuple[int, int], tuple[int, int]]) -> 
     return nb_paths_crosses
 
 
+def part_two(data: str) -> int:
+    hailstones = parse_data(data)
+    """Solve the following:
+    For a given hailstone --> x = xh + vxh * t   AND  y = yh + vyh * t   AND  z = zh + vzh * t
+    For the rock to throw --> x = xr + vxr * t   AND  y = yr + vyr * t   AND  z = zr + vzr * t  
+    
+    At a given time t where the hailstone and the rock collide, positions (x, y, z) are equal, as well as t  
+    i.e.  -->  xh + vxh * t = xr + vxr * t   (AND same for y and z)
+    => we have the following system of equations for each hailstone h:
+    t = (xh - xr)/(vxr - vxh)
+    t = (yh - yr)/(vyr - vyh)
+    t = (zh - zr)/(vzr - vzh)
+    
+    To solve it, we add all of these equations in the system and then solve them with sympy.
+    """
+    # Rock symbols
+    xr, yr, zr, vxr, vyr, vzr = sympy.symbols("xr, yr, zr, vxr, vyr, vzr")
+
+    equations = []
+    for position, velocity in hailstones:
+        xh, yh, zh = position
+        vxh, vyh, vzh = velocity
+        equations.append((xh - xr) * (vyr - vyh) - (vxr - vxh) * (yh - yr))
+        equations.append((xh - xr) * (vzr - vzh) - (vxr - vxh) * (zh - zr))
+        # Adding equation with y / z would be redundant because of transitivity
+
+    answers = sympy.solve(equations)
+    print("Values are", answers)
+    answer = answers[0]
+
+    return answer[xr] + answer[yr] + answer[zr]
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data = r"""19, 13, 30 @ -2,  1, -2
@@ -102,7 +136,7 @@ if __name__ == "__main__":
     print("-- Tests on test data:")
     boundaries = ((7, 27), (7, 27))
     print(part_one(test_data, boundaries) == 2)
-    # print(part_two(test_data) == 154)
+    print(part_two(test_data) == 47)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day24-input.txt")
@@ -111,7 +145,7 @@ if __name__ == "__main__":
     print("\n-- Solution for part A:")
     boundaries = ((200000000000000, 400000000000000), (200000000000000, 400000000000000))
     print(part_one(data, boundaries))  # 14046
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 6450
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 808107741406756
