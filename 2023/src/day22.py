@@ -76,6 +76,25 @@ def part_one(data: str) -> int:
     return nb_disintegratable
 
 
+def part_two(data: str) -> int:
+    bricks = parse_bricks(data)
+
+    # Settle all bricks
+    settled_bricks = drop(bricks)
+
+    # Try to remove one and increment count for each newly settled bricks that falls
+    nb_falls = 0
+    for i in range(len(settled_bricks)):
+        # removed_brick = settled_bricks[i]
+        settled_bricks_without_removed = settled_bricks[:i] + settled_bricks[i + 1:]
+        new_settled_bricks_without_removed = drop(settled_bricks_without_removed)
+        for b1, b2 in zip(settled_bricks_without_removed, new_settled_bricks_without_removed):
+            if b1 != b2:
+                nb_falls += 1
+
+    return nb_falls
+
+
 if __name__ == "__main__":
     # ---- TEST DATA -----
     test_data = r"""1,0,1~1,2,1
@@ -87,6 +106,7 @@ if __name__ == "__main__":
 1,1,8~1,1,9"""
     print("-- Tests on test data:")
     print(part_one(test_data) == 5)
+    print(part_two(test_data) == 7)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day22-input.txt")
@@ -95,7 +115,8 @@ if __name__ == "__main__":
     print("\n-- Solution for part A:")
     print(part_one(data))  # 405
     # About 5 seconds to execute
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data, 26501365))  # 594115391548176
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 61297
+    # About 5 seconds to execute
