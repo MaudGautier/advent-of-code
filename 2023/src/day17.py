@@ -8,6 +8,11 @@ def read_data(file_name):
 
 
 Grid = list[list[int]]
+Position = tuple[int, int]
+Distance = int
+Direction = tuple[int, int]
+NbMoves = int
+Node = tuple[Distance, Direction, NbMoves, Position]
 
 
 def parse_grid(data: list[str]) -> Grid:
@@ -17,30 +22,27 @@ def parse_grid(data: list[str]) -> Grid:
     return grid
 
 
-Position = tuple[int, int]
-Distance = int
-Direction = tuple[int, int]
-NbMoves = int
-Node = tuple[Distance, Direction, NbMoves, Position]
-
-
-def get_neighbors(node: Node, grid: Grid) -> list[Node]:
+def get_neighbors(node: Node, grid: Grid, min_moves: int, max_moves: int) -> list[Node]:
     distance, direction, moves_so_far, position = node
 
     neighbors = []
     for dir in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+        # Invalid - too many in direction
+        if dir == direction and moves_so_far >= max_moves:
+            continue
+        if dir != direction and moves_so_far < min_moves:
+            continue
+
+        # Define neighbor moves so far
         if dir == direction:
             neighbor_moves_so_far = moves_so_far + 1
         else:
             neighbor_moves_so_far = 1
+
         neighbor_position = (position[0] + dir[0], position[1] + dir[1])
 
         # Invalid - not in grid
         if not (0 <= neighbor_position[0] < len(grid) and 0 <= neighbor_position[1] < len(grid[0])):
-            continue
-
-        # Invalid - too many in direction
-        if neighbor_moves_so_far > 3:
             continue
 
         # Invalid - goes back to previous direction
@@ -53,7 +55,7 @@ def get_neighbors(node: Node, grid: Grid) -> list[Node]:
     return neighbors
 
 
-def run_dijkstra(grid: Grid, start: Position) -> int:
+def run_dijkstra(grid: Grid, start: Position, min_moves: int = 1, max_moves: int = 3) -> int:
     # Initialize
     shortest_path = {}
     max_value = math.inf
@@ -75,13 +77,15 @@ def run_dijkstra(grid: Grid, start: Position) -> int:
             continue
 
         # Visit all neighbors
-        neighbors = get_neighbors(node[:4], grid)
+        neighbors = get_neighbors(node, grid, min_moves=min_moves, max_moves=max_moves)
         for neighbor in neighbors:
             distance, direction, moves_so_far, position = neighbor
 
             # Update distance if shorter
-            if shortest_path[position] > distance:
-                shortest_path[position] = distance
+            # But only if moves so far correspond to the requirements
+            if min_moves <= moves_so_far <= max_moves:
+                if shortest_path[position] > distance:
+                    shortest_path[position] = distance
 
             # Append neighbor to queue
             heapq.heappush(queue, neighbor)
@@ -97,6 +101,12 @@ def part_one(data: list[str]) -> int:
     grid = parse_grid(data)
     start = (0, 0)
     return run_dijkstra(grid, start)
+
+
+def part_two(data: list[str]) -> int:
+    grid = parse_grid(data)
+    start = (0, 0)
+    return run_dijkstra(grid, start, min_moves=4, max_moves=10)
 
 
 if __name__ == "__main__":
@@ -164,6 +174,7 @@ if __name__ == "__main__":
         "7735",
         "5533"
     ]
+    print("-- Tests on subsets of test data:")
     print(part_one(test_data_1) == 6)
     print(part_one(test_data_2) == 15)
     print(part_one(test_data_3) == 4 + 1 + 1 + 1 + 1 + 1)
@@ -187,9 +198,17 @@ if __name__ == "__main__":
         "2546548887735",
         "4322674655533"
     ]
-    print("-- Tests on test data:")
+    test_data_other = [
+        "111111111111",
+        "999999999991",
+        "999999999991",
+        "999999999991",
+        "999999999991"
+    ]
+    print("\n-- Tests on real test data:")
     print(part_one(test_data) == 102)
-    # print(part_two(test_data) == 525152)
+    print(part_two(test_data) == 94)
+    print(part_two(test_data_other) == 71)
 
     # ---- REAL DATA ----
     data = read_data("./2023/data/day17-input.txt")
@@ -197,7 +216,9 @@ if __name__ == "__main__":
     # Solution for part A
     print("\n-- Solution for part A:")
     print(part_one(data))  # 694
-    #
-    # # Solution for part B
-    # print("\n-- Solution for part B:")
-    # print(part_two(data))  # 815364548481
+
+    # Solution for part B
+    print("\n-- Solution for part B:")
+    print(part_two(data))  # 829
+
+    # NB: takes ~ 4 seconds to execute everything - likely there are some optimisations possible
