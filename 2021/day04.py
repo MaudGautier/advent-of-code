@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     # Test data
     print("\n-- Tests on test data:")
-    (test_draws, test_boards) = read_data("data/day04-input-test.txt")
+    (test_draws, test_boards) = read_data("day04-input-test.txt")
     test_bingo_results = play_bingo(test_draws, test_boards)
     test_winner_board = extract_nth_winning_board(test_bingo_results, 0)
     test_winner_board_score = calculate_board_score(
