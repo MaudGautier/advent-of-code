@@ -137,7 +137,7 @@ def define_diagram_size(vent_lines: VentLines) -> int:
 if __name__ == "__main__":
     # Tests
     print("-- Tests on test data:")
-    test_vent_lines = read_data("day05-input-test.txt")
+    test_vent_lines = read_data("./2021/day05-input-test.txt")
     test_diagram_size = define_diagram_size(test_vent_lines)
     test_diagram = draw_diagram(test_vent_lines, test_diagram_size, diagonals=False)
     test_nb_dangerous_points = count_dangers(test_diagram, 2)
@@ -148,7 +148,7 @@ if __name__ == "__main__":
 
     # Solution for 5-a
     print("-- Solution for 5-a:")
-    vent_lines = read_data("data/day05-input.txt")
+    vent_lines = read_data("./data/2021/day05-input.txt")
     diagram_size = define_diagram_size(vent_lines)
     diagram = draw_diagram(vent_lines, diagram_size, diagonals=False)
     nb_dangerous_points = count_dangers(diagram, 2)
@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
     # Solution for 5-b
     print("-- Solution for 5-b:")
-    vent_lines = read_data("data/day05-input.txt")
+    vent_lines = read_data("./data/2021/day05-input.txt")
     diagram_size = define_diagram_size(vent_lines)
     diagram = draw_diagram(vent_lines, diagram_size, diagonals=True)
     nb_dangerous_points = count_dangers(diagram, 2)

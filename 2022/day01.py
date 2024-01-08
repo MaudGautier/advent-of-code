@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
 
     # ---- REAL DATA ----
-    data = read_data("./2022/data/day01-input.txt")
+    data = read_data("./data/2022/day01-input.txt")
     elvish_inventories = create_elvish_inventories(data)
 
     # Solution for 1-a

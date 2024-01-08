@@ -46,7 +46,7 @@ if __name__ == "__main__":
     print(part_two(test_data_5) == 26)
 
     # ---- REAL DATA ----
-    data = read_data("./2022/data/day06-input.txt")
+    data = read_data("./data/2022/day06-input.txt")
 
     # Solution for 2-a
     print("\n-- Solution for 2-a:")

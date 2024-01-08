@@ -154,7 +154,7 @@ if __name__ == "__main__":
     print(compute_my_score_using_the_guide(test_data) == 12)
 
     # ---- REAL DATA ----
-    data = read_data("./2022/data/day02-input.txt")
+    data = read_data("./data/2022/day02-input.txt")
 
     # Solution for 2-a
     print("\n-- Solution for 2-a:")

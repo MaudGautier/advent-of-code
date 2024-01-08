@@ -118,7 +118,7 @@ frs: qnr lhk lsr"""
     print(part_one(test_data) == 54)
 
     # ---- REAL DATA ----
-    data = read_data("./2023/data/day25-input.txt")
+    data = read_data("./data/2023/day25-input.txt")
 
     # Solution for part A
     print("\n-- Solution for part A:")

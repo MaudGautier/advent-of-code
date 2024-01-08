@@ -135,8 +135,8 @@ if __name__ == "__main__":
     print(part_two(test_data_2) == 140)
 
     # ---- REAL DATA ----
-    data_1 = read_data_part_one("./2022/data/day13-input.txt")
-    data_2 = read_data_part_two("./2022/data/day13-input.txt")
+    data_1 = read_data_part_one("./data/2022/day13-input.txt")
+    data_2 = read_data_part_two("./data/2022/day13-input.txt")
 
     # Solution for part A
     print("\n-- Solution for part A:")

@@ -124,7 +124,7 @@ if __name__ == "__main__":
     print(oxygen_rate == 23, co2_rate == 10, life_support_rating == 23 * 10)
 
     # Solution for 3-a
-    data = read_data("data/day03-input.txt")
+    data = read_data("./data/2021/day03-input.txt")
     (gamma_rate, epsilon_rate, oxygen_rate, co2_rate) = generate_diagnostics(data)
     power_consumption = multiply(gamma_rate, epsilon_rate)
     life_support_rating = multiply(oxygen_rate, co2_rate)

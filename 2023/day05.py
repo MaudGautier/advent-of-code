@@ -146,7 +146,7 @@ humidity-to-location map:
     print(part_two(test_data) == 46)
 
     # ---- REAL DATA ----
-    data = read_data("./2023/data/day05-input.txt")
+    data = read_data("./data/2023/day05-input.txt")
 
     # Solution for part A
     print("\n-- Solution for part A:")

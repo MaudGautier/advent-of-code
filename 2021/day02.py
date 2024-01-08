@@ -61,7 +61,7 @@ def multiply_coordinates(coordinates: Coordinates) -> int:
 
 
 if __name__ == "__main__":
-    file_path = "data/day02-input.txt"
+    file_path = "./data/2021/day02-input.txt"
     instructions = format_instructions(file_path)
     initial_coord_v1 = Coordinates(0, 0, None)
     initial_coord_v2 = Coordinates(0, 0, 0)

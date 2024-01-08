@@ -32,5 +32,5 @@ def count_nb_increases(input_file: str, window_size: int) -> int:
 
 
 if __name__ == "__main__":
-    print(count_nb_increases("data/day01-input.txt", 1) == 1184)  # should still be 1184
-    print(count_nb_increases("data/day01-input.txt", 3))  # 1158
+    print(count_nb_increases("./data/2021/day01-input.txt", 1) == 1184)  # should still be 1184
+    print(count_nb_increases("./data/2021/day01-input.txt", 3))  # 1158

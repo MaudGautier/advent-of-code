@@ -84,15 +84,15 @@ def part_two(monkeys):
 
 if __name__ == "__main__":
     # ---- TEST DATA -----
-    test_data_1 = read_data("./2022/data/day11-test-input.txt")
-    test_data_2 = read_data("./2022/data/day11-test-input.txt")  # because test_data_1 has been mutated
+    test_data_1 = read_data("./2022/day11-test-input.txt")
+    test_data_2 = read_data("./2022/day11-test-input.txt")  # because test_data_1 has been mutated
     print("-- Tests on test data:")
     print(part_one(test_data_1) == 10605)
     print(part_two(test_data_2) == 2713310158)
 
     # ---- REAL DATA ----
-    data_1 = read_data("./2022/data/day11-input.txt")
-    data_2 = read_data("./2022/data/day11-input.txt")  # because data_1 has been mutated
+    data_1 = read_data("./data/2022/day11-input.txt")
+    data_2 = read_data("./data/2022/day11-input.txt")  # because data_1 has been mutated
 
     # Solution for part A
     print("\n-- Solution for part A:")

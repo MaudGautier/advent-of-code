@@ -207,7 +207,7 @@ if __name__ == "__main__":
     print(part_one(test_data) == 3)
 
     # ---- REAL DATA ----
-    data = read_data("./2022/data/day20-input.txt")
+    data = read_data("./data/2022/day20-input.txt")
     # print(data)
     #
     # Solution for part A

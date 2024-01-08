@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
     # Solution for 9-a
     print("\n-- Solution for 9-a:")
-    height_map = read_data("data/day09-input.txt")
+    height_map = read_data("./data/2021/day09-input.txt")
     low_points_coordinates = find_low_points_coordinates(height_map)
     low_points = get_point_values(height_map, low_points_coordinates)
     total_risk_level = compute_total_risk_level(low_points)

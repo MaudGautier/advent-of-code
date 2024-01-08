@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     # Solution for 7-a
     print("\n-- Solution for 7-a:")
-    crab_positions = read_data("data/day07-input.txt")
+    crab_positions = read_data("./data/2021/day07-input.txt")
     minimal_fuel = get_min_fuel(crab_positions)
     print("The minimal fuel amount for the selected position is:", minimal_fuel)
 

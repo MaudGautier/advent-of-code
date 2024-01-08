@@ -158,7 +158,7 @@ hdj{m>838:A,pv}
     print(part_two(test_data) == 167409079868000)
 
     # ---- REAL DATA ----
-    data = read_data("./2023/data/day19-input.txt")
+    data = read_data("./data/2023/day19-input.txt")
 
     # Solution for part A
     print("\n-- Solution for part A:")

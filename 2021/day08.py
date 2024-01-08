@@ -150,7 +150,7 @@ def decode(output_values: OutputValues, segment_to_wires_map: SegmentsToWires) -
 if __name__ == "__main__":
     print("-- Tests on test data:")
     # Tests for 8-a
-    test_data = read_data("day08-input-test.txt")
+    test_data = read_data("./2021/day08-input-test.txt")
     test_nb_easy_digits = count_nb_easy_digits(test_data)
     print(test_nb_easy_digits == 26)
     # Tests for 8-b
@@ -185,7 +185,7 @@ if __name__ == "__main__":
 
     # Solution for 8-a
     print("\n-- Solution for 8-a:")
-    entries = read_data("data/day08-input.txt")
+    entries = read_data("./data/2021/day08-input.txt")
     nb_easy_digits = count_nb_easy_digits(entries)
     print("There are", nb_easy_digits, "easy digits")
 

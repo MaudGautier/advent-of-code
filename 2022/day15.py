@@ -178,7 +178,7 @@ if __name__ == "__main__":
     # ROW 11 : trace [[-3, 13], [15, 25]]
 
     # ---- REAL DATA ----
-    data = read_data("./2022/data/day15-input.txt")
+    data = read_data("./data/2022/day15-input.txt")
 
     # Solution for part A
     print("\n-- Solution for part A:")

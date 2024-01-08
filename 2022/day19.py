@@ -193,7 +193,7 @@ if __name__ == "__main__":
     print(part_two(test_blueprints))
 
     # ---- REAL DATA ----
-    data = read_data("./2022/data/day19-input.txt")
+    data = read_data("./data/2022/day19-input.txt")
 
     # Solution for part A
     print("\n-- Solution for part A:")

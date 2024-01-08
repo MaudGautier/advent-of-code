@@ -122,7 +122,7 @@ if __name__ == "__main__":
     print(part_two(stacks_part_two, instructions_part_two) == "MCD")
 
     # ---- REAL DATA ----
-    data = read_data("./2022/data/day05-input.txt")
+    data = read_data("./data/2022/day05-input.txt")
 
     # Solution for 2-a
     print("\n-- Solution for 2-a:")

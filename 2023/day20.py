@@ -172,7 +172,7 @@ if __name__ == "__main__":
     print(part_one(test_data_2) == 11687500)
 
     # ---- REAL DATA ----
-    data = read_data("./2023/data/day20-input.txt")
+    data = read_data("./data/2023/day20-input.txt")
 
     # Solution for part A
     print("\n-- Solution for part A:")

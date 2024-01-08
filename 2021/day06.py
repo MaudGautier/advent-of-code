@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     # Solution for 6-a
     print("\n-- Solution for 6-a:")
-    initial_fish_timers = initialize_fish_timers("data/day06-input.txt")
+    initial_fish_timers = initialize_fish_timers("./data/2021/day06-input.txt")
     nb_fishes_after_80_days = count_fish(initial_fish_timers, 80)
     print("After 80 days, there are", nb_fishes_after_80_days, "fishes")  # 380243
 
